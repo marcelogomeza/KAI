@@ -10,7 +10,13 @@ dotenv.config();
 const app = express();
 const prisma = new PrismaClient();
 const aiController = new AIController();
+console.log('--- Starting KAI Server ---');
+console.log('Environment:', process.env.NODE_ENV);
+console.log('CWD:', process.cwd());
+console.log('__dirname:', __dirname);
+
 const PORT = Number(process.env.PORT) || 3001;
+console.log('Target PORT:', PORT);
 
 app.use(cors());
 app.use(express.json());
@@ -106,6 +112,11 @@ app.get('*', (req, res) => {
     res.sendFile(path.join(clientDistPath, 'index.html'));
 });
 
-app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Server is running on port ${PORT}`);
+const server = app.listen(PORT, '0.0.0.0', () => {
+    console.log(`[READY] Server is running on port ${PORT}`);
+    console.log(`[Ready] Interface: 0.0.0.0`);
+});
+
+server.on('error', (error) => {
+    console.error('[FATAL] Server failed to start:', error);
 });
