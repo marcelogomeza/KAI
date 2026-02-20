@@ -13,7 +13,7 @@ dotenv_1.default.config();
 const app = (0, express_1.default)();
 const prisma = new client_1.PrismaClient();
 const aiController = new AIController_1.AIController();
-const PORT = process.env.PORT || 3001;
+const PORT = Number(process.env.PORT) || 3001;
 app.use((0, cors_1.default)());
 app.use(express_1.default.json());
 app.get('/api/health', (req, res) => {
@@ -98,11 +98,12 @@ app.post('/api/chat', async (req, res) => {
 });
 // -- SERVE STATIC CLIENT --
 // Assuming structural deployment where client/dist is placed relative to server/dist
+// In the Docker container, we are in /app/server/dist, and the client is in /app/client/dist
 const clientDistPath = path_1.default.join(__dirname, '../../client/dist');
 app.use(express_1.default.static(clientDistPath));
 app.get('*', (req, res) => {
     res.sendFile(path_1.default.join(clientDistPath, 'index.html'));
 });
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server is running on port ${PORT}`);
 });
