@@ -8,9 +8,7 @@ import { AIController } from './controllers/AIController';
 dotenv.config();
 
 const app = express();
-const prisma = new PrismaClient({
-    datasourceUrl: process.env.DATABASE_URL
-});
+const prisma = new PrismaClient();
 const aiController = new AIController();
 const PORT = process.env.PORT || 3001;
 

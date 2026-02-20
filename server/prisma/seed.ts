@@ -1,8 +1,6 @@
 import { PrismaClient } from '@prisma/client'
 
-const prisma = new PrismaClient({
-    datasourceUrl: process.env.DATABASE_URL
-})
+const prisma = new PrismaClient()
 
 async function main() {
     // Clear existing data (optional, useful for clean resets)
