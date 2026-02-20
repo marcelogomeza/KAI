@@ -10,7 +10,7 @@ dotenv.config();
 const app = express();
 const prisma = new PrismaClient();
 const aiController = new AIController();
-const PORT = process.env.PORT || 3001;
+const PORT = Number(process.env.PORT) || 3001;
 
 app.use(cors());
 app.use(express.json());
