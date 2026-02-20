@@ -36,19 +36,16 @@ RUN npx tsc
 FROM node:20-alpine
 WORKDIR /app
 
-RUN apk add --no-cache openssl
+RUN apk add --no-cache openssl libc6-compat
 
 # Copy built client
 COPY --from=client-builder /app/client/dist ./client/dist
 
-# Copy built server and dependencies
-COPY --from=server-builder /app/server/dist ./server/dist
-COPY --from=server-builder /app/server/node_modules ./server/node_modules
-COPY --from=server-builder /app/server/package*.json ./server/
-COPY --from=server-builder /app/server/prisma ./server/prisma
-
-# Generate Prisma Client in the production image (requires DB connection string at runtime if using real DB, but generation only needs schema)
+# Copy built server and all its structure
 WORKDIR /app/server
+COPY --from=server-builder /app/server ./
+
+# Generate Prisma Client in the production image to ensure compatibility
 RUN npx prisma generate
 
 # Railway automatically passes PORT

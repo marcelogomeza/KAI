@@ -1,4 +1,5 @@
 import express from 'express';
+console.log('[DEBUG] Express imported');
 import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'path';
@@ -6,6 +7,16 @@ import { PrismaClient } from '@prisma/client';
 import { AIController } from './controllers/AIController';
 
 dotenv.config();
+console.log('[DEBUG] dotenv configured');
+
+process.on('uncaughtException', (err) => {
+    console.error('[FATAL] Uncaught Exception:', err);
+    process.exit(1);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('[FATAL] Unhandled Rejection at:', promise, 'reason:', reason);
+});
 
 const app = express();
 const prisma = new PrismaClient();
@@ -120,3 +131,5 @@ const server = app.listen(PORT, '0.0.0.0', () => {
 server.on('error', (error) => {
     console.error('[FATAL] Server failed to start:', error);
 });
+
+console.log('[DEBUG] End of index.ts reached');
