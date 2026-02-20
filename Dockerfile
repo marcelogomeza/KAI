@@ -16,6 +16,9 @@ RUN npm run build
 FROM node:20-alpine AS server-builder
 WORKDIR /app/server
 
+# Cache bust
+ARG CACHE_BUST=1
+
 COPY server/package*.json ./
 RUN npm install
 
