@@ -1,0 +1,9 @@
+node_modules
+client/node_modules
+server/node_modules
+client/dist
+server/dist
+server/prisma.config.js
+server/prisma.config.js.map
+server/prisma.config.d.ts
+.env
