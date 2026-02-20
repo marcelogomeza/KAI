@@ -16,8 +16,10 @@ RUN npm run build
 FROM node:20-alpine AS server-builder
 WORKDIR /app/server
 
-# Cache bust
-ARG CACHE_BUST=1
+RUN apk add --no-cache openssl
+
+# Cache bust 2
+ARG CACHE_BUST=2
 
 COPY server/package*.json ./
 RUN npm install
@@ -33,6 +35,8 @@ RUN npx tsc
 # ==========================================
 FROM node:20-alpine
 WORKDIR /app
+
+RUN apk add --no-cache openssl
 
 # Copy built client
 COPY --from=client-builder /app/client/dist ./client/dist
