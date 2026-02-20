@@ -1,0 +1,64 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String   @default("")
+  role      String   @default("USER") // USER, ADMIN, EXPERT
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  expert    Expert?
+  guides    Guide[]  @relation("AuthorGuides")
+}
+
+model Expert {
+  id           String   @id @default(uuid())
+  userId       String   @unique
+  user         User     @relation(fields: [userId], references: [id])
+  skills       String[]
+  projects     String[]
+  department   String   @default("Engineering")
+  level        String   @default("Senior") // Junior, Senior, Staff
+  contactEmail String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Guide {
+  id          String   @id @default(uuid())
+  title       String
+  content     String
+  version     String   @default("v1.0")
+  department  String   @default("General")
+  authorId    String
+  author      User     @relation("AuthorGuides", fields: [authorId], references: [id])
+  tags        Tag[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model KnowledgeRecord {
+  id          String   @id @default(uuid())
+  title       String
+  summary     String
+  contentUrl  String?
+  source      String   @default("MANUAL") // DRIVE, ONEDRIVE, S3, MANUAL
+  tags        Tag[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Tag {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  guides    Guide[]
+  records   KnowledgeRecord[]
+}
