@@ -98,6 +98,7 @@ app.post('/api/chat', async (req, res) => {
 
 // -- SERVE STATIC CLIENT --
 // Assuming structural deployment where client/dist is placed relative to server/dist
+// In the Docker container, we are in /app/server/dist, and the client is in /app/client/dist
 const clientDistPath = path.join(__dirname, '../../client/dist');
 app.use(express.static(clientDistPath));
 
