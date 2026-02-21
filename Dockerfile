@@ -48,8 +48,4 @@ COPY --from=server-builder /app/server ./
 # Generate Prisma Client in the production image to ensure compatibility
 RUN npx prisma generate
 
-# Railway automatically passes PORT
-ENV PORT=3000
-EXPOSE 3000
-
-CMD ["node", "./dist/src/index.js"]
+CMD ["node", "dist/index.js"]
