@@ -1,13 +1,17 @@
+console.log('[DEBUG] 1. Starting execution of index.ts');
+
 import express from 'express';
-console.log('[DEBUG] Express imported');
+console.log('[DEBUG] 2. Express imported');
 import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'path';
 import { PrismaClient } from '@prisma/client';
 import { AIController } from './controllers/AIController';
 
+console.log('[DEBUG] 3. Modules imported');
+
 dotenv.config();
-console.log('[DEBUG] dotenv configured');
+console.log('[DEBUG] 4. dotenv configured. PORT from env:', process.env.PORT);
 
 process.on('uncaughtException', (err) => {
     console.error('[FATAL] Uncaught Exception:', err);
@@ -19,17 +23,49 @@ process.on('unhandledRejection', (reason, promise) => {
 });
 
 const app = express();
+console.log('[DEBUG] 5. Express app initialized');
+
 let prisma: PrismaClient | null = null;
 let aiController: AIController | null = null;
 let dbConnected = false;
 
+// --- EARLY HEALTH CHECK & LOGGING ---
+app.use((req, res, next) => {
+    console.log(`[REQUEST] ${new Date().toISOString()} - ${req.method} ${req.path}`);
+    next();
+});
+
+// Health check endpoint - MOVED TO TOP to bypass other middleware
+app.get('/api/health', (req, res) => {
+    console.log('[HEALTH] Responding to /api/health');
+    res.status(200).json({
+        status: 'ok',
+        timestamp: new Date(),
+        database: dbConnected ? 'connected' : 'disconnected',
+        env: process.env.NODE_ENV,
+        cwd: process.cwd(),
+        uptime: process.uptime()
+    });
+});
+
+const PORT = Number(process.env.PORT) || 3001;
+console.log(`[DEBUG] 6. Target PORT identified: ${PORT} (Type: ${typeof PORT})`);
+
+// Standard Middleware
+app.use(cors());
+app.use(express.json());
+
 // Initialize services safely
 async function initializeServices() {
+    console.log('[DEBUG] 7. Starting initializeServices');
     try {
+        console.log('[DEBUG] 8. Creating PrismaClient');
         prisma = new PrismaClient();
+        console.log('[DEBUG] 9. Creating AIController');
         aiController = new AIController();
-        
+
         // Test connection
+        console.log('[DEBUG] 10. Testing DB connection...');
         await prisma.$queryRaw`SELECT 1`;
         dbConnected = true;
         console.log('[✓] Database connection successful');
@@ -40,30 +76,10 @@ async function initializeServices() {
     }
 }
 
-console.log('--- Starting KAI Server ---');
-console.log('Environment:', process.env.NODE_ENV);
-console.log('CWD:', process.cwd());
-console.log('__dirname:', __dirname);
-
-const PORT = Number(process.env.PORT) || 3001;
-console.log('Target PORT:', PORT);
-
-app.use(cors());
-app.use(express.json());
-
-// Health check endpoint - always works
-app.get('/api/health', (req, res) => {
-    res.status(200).json({ 
-        status: 'ok', 
-        timestamp: new Date(),
-        database: dbConnected ? 'connected' : 'disconnected'
-    });
-});
-
 // Graceful database error handler middleware
 app.use((req, res, next) => {
-    if (!dbConnected && req.path !== '/api/health') {
-        return res.status(503).json({ 
+    if (!dbConnected && req.path.startsWith('/api') && req.path !== '/api/health') {
+        return res.status(503).json({
             error: 'Database service temporarily unavailable',
             message: 'Waiting for database connection...'
         });
@@ -169,8 +185,6 @@ app.post('/api/chat', async (req, res) => {
 });
 
 // -- SERVE STATIC CLIENT --
-// Assuming structural deployment where client/dist is placed relative to server/dist
-// In the Docker container, we are in /app/server/dist, and the client is in /app/client/dist
 const clientDistPath = path.join(process.cwd(), '../client/dist');
 app.use(express.static(clientDistPath));
 
@@ -178,14 +192,16 @@ app.get('*', (req, res) => {
     res.sendFile(path.join(clientDistPath, 'index.html'));
 });
 
+console.log('[DEBUG] 11. Middleware configured. About to listen...');
+
 const server = app.listen(PORT, '0.0.0.0', () => {
-    console.log(`[READY] Server is running on port ${PORT}`);
+    console.log(`[READY] Server is actually running on port ${PORT}`);
     console.log(`[Ready] Interface: 0.0.0.0`);
-    console.log(`[Ready] Health check: http://localhost:${PORT}/api/health`);
+    console.log(`[Ready] Local Health: http://localhost:${PORT}/api/health`);
 });
 
 server.on('error', (error) => {
-    console.error('[FATAL] Server failed to start:', error);
+    console.error('[FATAL] Server failed to bind or listen:', error);
     process.exit(1);
 });
 
@@ -194,4 +210,4 @@ initializeServices().catch((error) => {
     console.error('[ERROR] Failed to initialize services:', error);
 });
 
-console.log('[DEBUG] End of index.ts reached');
+console.log('[DEBUG] 12. End of index.ts script reached');
