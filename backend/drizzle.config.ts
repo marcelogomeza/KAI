@@ -1,0 +1,14 @@
+import { defineConfig } from 'drizzle-kit';
+import * as dotenv from 'dotenv';
+dotenv.config({ path: '../.env' }); // Load from root
+
+export default defineConfig({
+    schema: './src/db/schema.ts',
+    out: './src/db/migrations',
+    driver: 'pg',
+    dbCredentials: {
+        connectionString: process.env.DATABASE_URL || 'postgres://postgres:postgres@localhost:5432/kai',
+    },
+    verbose: true,
+    strict: true,
+});

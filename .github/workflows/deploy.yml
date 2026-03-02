@@ -1,0 +1,45 @@
+name: Deploy to Hostinger VPS
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Deploy to Server via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOSTINGER_IP }}
+          username: ${{ secrets.HOSTINGER_USER }}
+          password: ${{ secrets.HOSTINGER_PASSWORD }}
+          # Alternatively use SSH key:
+          # key: ${{ secrets.HOSTINGER_SSH_KEY }}
+          port: ${{ secrets.HOSTINGER_PORT }}
+          script: |
+            # Create app directory if it doesn't exist
+            mkdir -p /opt/kai-saas
+            cd /opt/kai-saas
+            
+            # Note: For this to work automatically, your code should be accessible via Git on the VPS
+            # Or you should copy files via rsync before SSHing. 
+            # In this script, we assume the VPS pulls the code from GitHub.
+            
+            if [ ! -d ".git" ]; then
+              git clone https://github.com/${{ github.repository }}.git .
+            else
+              git pull origin main
+            fi
+
+            # Build and start the containers using docker-compose.prod.yml
+            docker compose -f docker-compose.prod.yml up -d --build
+            
+            # Clean up old images
+            docker image prune -f
