@@ -3,8 +3,8 @@ import cors from 'cors';
 import * as dotenv from 'dotenv';
 import path from 'path';
 
-// Load environment variables from the root .env
-dotenv.config({ path: path.join(__dirname, '../../../.env') });
+// Load environment variables
+dotenv.config();
 
 import authRoutes from './modules/auth/auth.routes';
 import { errorHandler } from './middleware/errorHandler';
@@ -32,6 +32,10 @@ app.get('/health', (req, res) => {
 app.use(errorHandler);
 
 app.listen(PORT, async () => {
-    await initMinio();
-    console.log(`KAI Backend MVP running on port ${PORT}`);
+    try {
+        await initMinio();
+        console.log(`KAI Backend MVP running on port ${PORT}`);
+    } catch (error) {
+        console.error('Failed to initialize Storage:', error);
+    }
 });
