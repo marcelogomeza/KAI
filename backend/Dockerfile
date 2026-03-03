@@ -4,7 +4,7 @@ FROM node:18-alpine AS builder
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm ci
+RUN npm install
 
 COPY tsconfig.json drizzle.config.ts ./
 COPY src/ ./src/
@@ -17,7 +17,7 @@ FROM node:18-alpine
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm ci --only=production
+RUN npm install --only=production
 
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/drizzle.config.ts ./
