@@ -6,6 +6,9 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci
 
+# Force rebuild to reflect login and roles changes
+ARG CACHE_BUST=2026-03-03-01
+
 COPY . .
 RUN npm run build
 
