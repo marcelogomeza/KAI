@@ -18,12 +18,16 @@ app.use(express.json());
 
 import documentsRoutes from './modules/documents/documents.routes';
 import usersRoutes from './modules/users/users.routes';
+import rolesRoutes from './modules/roles/roles.routes';
+import orgStructureRoutes from './modules/org-structure/org-structure.routes';
 import { initMinio } from './storage/minio';
 
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/documents', documentsRoutes);
 app.use('/api/users', usersRoutes);
+app.use('/api/roles', rolesRoutes);
+app.use('/api/org-structure', orgStructureRoutes);
 
 // Base health check
 app.get('/health', (req, res) => {

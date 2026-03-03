@@ -1,40 +1,36 @@
 import bcrypt from 'bcrypt';
 import { db } from '../../db/db';
-import { users } from '../../db/schema';
+import { users, jobs } from '../../db/schema';
 import { eq, and, ilike, or } from 'drizzle-orm';
 
 const SALT_ROUNDS = 10;
 
 export const listUsers = async (tenantId: string, search?: string) => {
-    let query = db.select({
+    let whereClause = eq(users.tenantId, tenantId);
+
+    if (search) {
+        whereClause = and(
+            eq(users.tenantId, tenantId),
+            or(
+                ilike(users.name, `%${search}%`),
+                ilike(users.email, `%${search}%`)
+            )
+        ) as any;
+    }
+
+    return await db.select({
         id: users.id,
         name: users.name,
         email: users.email,
         role: users.role,
         orgRole: users.orgRole,
+        jobId: users.jobId,
+        jobName: jobs.name,
         createdAt: users.createdAt
-    }).from(users).where(eq(users.tenantId, tenantId));
-
-    if (search) {
-        query = db.select({
-            id: users.id,
-            name: users.name,
-            email: users.email,
-            role: users.role,
-            orgRole: users.orgRole,
-            createdAt: users.createdAt
-        }).from(users).where(
-            and(
-                eq(users.tenantId, tenantId),
-                or(
-                    ilike(users.name, `%${search}%`),
-                    ilike(users.email, `%${search}%`)
-                )
-            )
-        );
-    }
-
-    return await query;
+    })
+        .from(users)
+        .leftJoin(jobs, eq(users.jobId, jobs.id))
+        .where(whereClause);
 };
 
 export const createUser = async (tenantId: string, data: {
@@ -43,6 +39,7 @@ export const createUser = async (tenantId: string, data: {
     passwordPlain: string;
     role: 'admin' | 'hr' | 'auditor' | 'user' | 'revisor';
     orgRole: string;
+    jobId?: string | null;
 }) => {
     const passwordHash = await bcrypt.hash(data.passwordPlain, SALT_ROUNDS);
 
@@ -52,13 +49,15 @@ export const createUser = async (tenantId: string, data: {
         email: data.email,
         passwordHash,
         role: data.role,
-        orgRole: data.orgRole
+        orgRole: data.orgRole,
+        jobId: data.jobId || null
     }).returning({
         id: users.id,
         name: users.name,
         email: users.email,
         role: users.role,
-        orgRole: users.orgRole
+        orgRole: users.orgRole,
+        jobId: users.jobId
     });
 
     return newUser;
@@ -70,12 +69,13 @@ export const updateUser = async (tenantId: string, userId: string, data: {
     passwordPlain?: string;
     role?: 'admin' | 'hr' | 'auditor' | 'user' | 'revisor';
     orgRole?: string;
+    jobId?: string | null;
 }) => {
-    const updateData: any = { ...data };
+    const { passwordPlain, ...otherData } = data;
+    const updateData: any = { ...otherData };
 
-    if (data.passwordPlain) {
-        updateData.passwordHash = await bcrypt.hash(data.passwordPlain, SALT_ROUNDS);
-        delete updateData.passwordPlain;
+    if (passwordPlain) {
+        updateData.passwordHash = await bcrypt.hash(passwordPlain, SALT_ROUNDS);
     }
 
     const [updatedUser] = await db.update(users)
@@ -86,7 +86,8 @@ export const updateUser = async (tenantId: string, userId: string, data: {
             name: users.name,
             email: users.email,
             role: users.role,
-            orgRole: users.orgRole
+            orgRole: users.orgRole,
+            jobId: users.jobId
         });
 
     return updatedUser;

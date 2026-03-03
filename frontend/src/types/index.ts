@@ -8,6 +8,7 @@ export interface User {
     role: Role;
     tenantId: string;
     orgRole?: string;
+    jobId?: string;
 }
 
 export interface Document {

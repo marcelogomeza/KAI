@@ -10,6 +10,8 @@ export const UsersPage: React.FC = () => {
     const [search, setSearch] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingUser, setEditingUser] = useState<User | null>(null);
+    const [organizationRoles, setOrganizationRoles] = useState<{ id: string, name: string }[]>([]);
+    const [allJobs, setAllJobs] = useState<{ id: string, name: string }[]>([]);
 
     // Form state
     const [formData, setFormData] = useState({
@@ -17,7 +19,8 @@ export const UsersPage: React.FC = () => {
         email: '',
         password: '',
         role: 'user' as Role,
-        orgRole: ''
+        orgRole: '',
+        jobId: ''
     });
 
     const fetchUsers = async () => {
@@ -32,21 +35,45 @@ export const UsersPage: React.FC = () => {
         }
     };
 
+    const fetchOrganizationRoles = async () => {
+        try {
+            const response = await api.get('/roles/organization');
+            setOrganizationRoles(response.data);
+        } catch (error) {
+            console.error('Error fetching organization roles:', error);
+        }
+    };
+
+    const fetchJobs = async () => {
+        try {
+            const response = await api.get('/org-structure');
+            setAllJobs(response.data.jobs);
+        } catch (error) {
+            console.error('Error fetching jobs:', error);
+        }
+    };
+
     useEffect(() => {
         fetchUsers();
+        fetchOrganizationRoles();
+        fetchJobs();
     }, [search]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
+            const submitData = {
+                ...formData,
+                jobId: formData.jobId || null
+            };
             if (editingUser) {
-                await api.patch(`/users/${editingUser.id}`, formData);
+                await api.patch(`/users/${editingUser.id}`, submitData);
             } else {
-                await api.post('/users', formData);
+                await api.post('/users', submitData);
             }
             setIsModalOpen(false);
             setEditingUser(null);
-            setFormData({ name: '', email: '', password: '', role: 'user', orgRole: '' });
+            setFormData({ name: '', email: '', password: '', role: 'user', orgRole: '', jobId: '' });
             fetchUsers();
         } catch (error) {
             console.error('Error saving user:', error);
@@ -60,7 +87,8 @@ export const UsersPage: React.FC = () => {
             email: user.email,
             password: '', // Don't show password
             role: user.role,
-            orgRole: user.orgRole || ''
+            orgRole: user.orgRole || '',
+            jobId: user.jobId || ''
         });
         setIsModalOpen(true);
     };
@@ -73,6 +101,37 @@ export const UsersPage: React.FC = () => {
             } catch (error) {
                 console.error('Error deleting user:', error);
             }
+        }
+    };
+
+    const downloadLayout = () => {
+        const headers = 'name,email,password,role,orgRole\n';
+        const sample = 'John Doe,john@example.com,password123,user,IT Manager\n';
+        const blob = new Blob([headers + sample], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'users_layout.csv';
+        a.click();
+        window.URL.revokeObjectURL(url);
+    };
+
+    const handleBulkCreate = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            await api.post('/users/bulk', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+            alert('Users created successfully');
+            fetchUsers();
+        } catch (error) {
+            console.error('Error bulk creating users:', error);
+            alert('Error creating users. Please check the file format.');
         }
     };
 
@@ -91,17 +150,29 @@ export const UsersPage: React.FC = () => {
                     <h1 className="text-3xl font-bold text-gray-900">User Management</h1>
                     <p className="text-gray-500 mt-1">Manage platform users and their organizational roles</p>
                 </div>
-                <button
-                    onClick={() => {
-                        setEditingUser(null);
-                        setFormData({ name: '', email: '', password: '', role: 'user', orgRole: '' });
-                        setIsModalOpen(true);
-                    }}
-                    className="inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-semibold shadow-sm"
-                >
-                    <Plus className="w-5 h-5 mr-2" />
-                    Create User
-                </button>
+                <div className="flex items-center space-x-3">
+                    <button
+                        onClick={downloadLayout}
+                        className="inline-flex items-center px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-semibold shadow-sm bg-white"
+                    >
+                        Download Layout
+                    </button>
+                    <label className="inline-flex items-center px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-semibold shadow-sm bg-white cursor-pointer">
+                        Bulk Create
+                        <input type="file" accept=".csv,.txt" onChange={handleBulkCreate} className="hidden" />
+                    </label>
+                    <button
+                        onClick={() => {
+                            setEditingUser(null);
+                            setFormData({ name: '', email: '', password: '', role: 'user', orgRole: '', jobId: '' });
+                            setIsModalOpen(true);
+                        }}
+                        className="inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-semibold shadow-sm"
+                    >
+                        <Plus className="w-5 h-5 mr-2" />
+                        Create User
+                    </button>
+                </div>
             </div>
 
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
@@ -125,6 +196,7 @@ export const UsersPage: React.FC = () => {
                                 <th className="px-6 py-4">User</th>
                                 <th className="px-6 py-4">Platform Role</th>
                                 <th className="px-6 py-4">Organizational Role</th>
+                                <th className="px-6 py-4">Position</th>
                                 <th className="px-6 py-4">Joined</th>
                                 <th className="px-6 py-4 text-right">Actions</th>
                             </tr>
@@ -157,6 +229,10 @@ export const UsersPage: React.FC = () => {
                                     </td>
                                     <td className="px-6 py-4 text-gray-600">
                                         {user.orgRole || <span className="text-gray-400 italic">Not set</span>}
+                                    </td>
+                                    <td className="px-6 py-4 text-gray-600">
+                                        {/* @ts-ignore */}
+                                        {user.jobName || <span className="text-gray-400 italic">No Position</span>}
                                     </td>
                                     <td className="px-6 py-4 text-gray-500">
                                         {/* @ts-ignore */}
@@ -253,14 +329,30 @@ export const UsersPage: React.FC = () => {
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">Organizational Role</label>
-                                    <input
+                                    <select
                                         required
-                                        type="text"
                                         value={formData.orgRole}
                                         onChange={(e) => setFormData({ ...formData, orgRole: e.target.value })}
-                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none"
-                                        placeholder="e.g. IT Manager"
-                                    />
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none bg-white font-sans"
+                                    >
+                                        <option value="">Select a role</option>
+                                        {organizationRoles.map(role => (
+                                            <option key={role.id} value={role.name}>{role.name}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Structure Position</label>
+                                    <select
+                                        value={formData.jobId}
+                                        onChange={(e) => setFormData({ ...formData, jobId: e.target.value })}
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none bg-white font-sans"
+                                    >
+                                        <option value="">No Position (Consultant)</option>
+                                        {allJobs.map(job => (
+                                            <option key={job.id} value={job.id}>{job.name}</option>
+                                        ))}
+                                    </select>
                                 </div>
                             </div>
                             <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200 mt-6">
