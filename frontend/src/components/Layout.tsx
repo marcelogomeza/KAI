@@ -16,6 +16,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
 
     const navItems = [
         { name: 'Repository', path: '/', icon: BookOpen },
+        { name: 'Users', path: '/users', icon: Settings, roles: ['admin'] },
         { name: 'Settings', path: '/settings', icon: Settings, roles: ['admin'] },
     ];
 

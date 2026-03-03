@@ -19,7 +19,7 @@ export const requireAuth = (req: AuthRequest, res: Response, next: NextFunction)
     }
 };
 
-export const requireRole = (roles: Array<'admin' | 'revisor' | 'usuario'>) => {
+export const requireRole = (roles: Array<'admin' | 'hr' | 'auditor' | 'user' | 'revisor'>) => {
     return (req: AuthRequest, res: Response, next: NextFunction) => {
         if (!req.user) {
             return res.status(401).json({ error: 'Unauthorized: No user session' });

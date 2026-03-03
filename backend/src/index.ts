@@ -17,11 +17,13 @@ app.use(cors());
 app.use(express.json());
 
 import documentsRoutes from './modules/documents/documents.routes';
+import usersRoutes from './modules/users/users.routes';
 import { initMinio } from './storage/minio';
 
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/documents', documentsRoutes);
+app.use('/api/users', usersRoutes);
 
 // Base health check
 app.get('/health', (req, res) => {

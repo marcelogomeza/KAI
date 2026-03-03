@@ -3,7 +3,7 @@ import { Request } from 'express';
 export interface JwtPayload {
     userId: string;
     tenantId: string;
-    role: 'admin' | 'revisor' | 'usuario';
+    role: 'admin' | 'hr' | 'auditor' | 'user' | 'revisor';
 }
 
 export interface AuthRequest extends Request {

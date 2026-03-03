@@ -3,6 +3,7 @@ import { AuthProvider } from './context/AuthContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { LoginPage } from './pages/LoginPage';
 import { RepositoryPage } from './pages/RepositoryPage';
+import { UsersPage } from './pages/UsersPage';
 import { Layout } from './components/Layout';
 
 function App() {
@@ -16,6 +17,7 @@ function App() {
                     {/* Protected Routes */}
                     <Route element={<ProtectedRoute />}>
                         <Route path="/" element={<Layout><RepositoryPage /></Layout>} />
+                        <Route path="/users" element={<Layout><UsersPage /></Layout>} />
                     </Route>
 
                     {/* Fallback */}

@@ -1,6 +1,6 @@
 import { pgTable, uuid, varchar, timestamp, text, integer, pgEnum } from 'drizzle-orm/pg-core';
 
-export const roleEnum = pgEnum('role', ['admin', 'revisor', 'usuario']);
+export const roleEnum = pgEnum('role', ['admin', 'hr', 'auditor', 'user', 'revisor']);
 export const statusEnum = pgEnum('status', ['draft', 'approved', 'obsolete']);
 
 export const tenants = pgTable('tenants', {
@@ -14,9 +14,11 @@ export const tenants = pgTable('tenants', {
 export const users = pgTable('users', {
     id: uuid('id').defaultRandom().primaryKey(),
     tenantId: uuid('tenant_id').references(() => tenants.id).notNull(),
+    name: varchar('name', { length: 255 }),
     email: varchar('email', { length: 255 }).notNull().unique(),
     passwordHash: text('password_hash').notNull(),
-    role: roleEnum('role').default('usuario').notNull(),
+    role: roleEnum('role').default('user').notNull(),
+    orgRole: varchar('org_role', { length: 255 }),
     createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 

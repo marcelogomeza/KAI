@@ -1,11 +1,13 @@
-export type Role = 'admin' | 'revisor' | 'usuario';
+export type Role = 'admin' | 'hr' | 'auditor' | 'user' | 'revisor';
 export type DocumentStatus = 'draft' | 'approved' | 'obsolete';
 
 export interface User {
     id: string;
     email: string;
+    name?: string;
     role: Role;
     tenantId: string;
+    orgRole?: string;
 }
 
 export interface Document {
