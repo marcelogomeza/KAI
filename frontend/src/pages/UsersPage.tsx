@@ -202,7 +202,7 @@ export const UsersPage: React.FC = () => {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-200 text-sm">
-                            {users.map((user) => (
+                            {users.map((user: User) => (
                                 <tr key={user.id} className="hover:bg-gray-50 transition-colors group">
                                     <td className="px-6 py-4">
                                         <div className="flex items-center">
@@ -319,10 +319,10 @@ export const UsersPage: React.FC = () => {
                                     <label className="block text-sm font-medium text-gray-700 mb-1">Platform Role</label>
                                     <select
                                         value={formData.role}
-                                        onChange={(e) => setFormData({ ...formData, role: e.target.value as Role })}
+                                        onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setFormData({ ...formData, role: e.target.value as Role })}
                                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none bg-white"
                                     >
-                                        {roles.map(role => (
+                                        {roles.map((role: { value: Role; label: string }) => (
                                             <option key={role.value} value={role.value}>{role.label}</option>
                                         ))}
                                     </select>
@@ -332,11 +332,11 @@ export const UsersPage: React.FC = () => {
                                     <select
                                         required
                                         value={formData.orgRole}
-                                        onChange={(e) => setFormData({ ...formData, orgRole: e.target.value })}
+                                        onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setFormData({ ...formData, orgRole: e.target.value })}
                                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none bg-white font-sans"
                                     >
                                         <option value="">Select a role</option>
-                                        {organizationRoles.map(role => (
+                                        {organizationRoles.map((role: { id: string, name: string }) => (
                                             <option key={role.id} value={role.name}>{role.name}</option>
                                         ))}
                                     </select>
@@ -345,11 +345,11 @@ export const UsersPage: React.FC = () => {
                                     <label className="block text-sm font-medium text-gray-700 mb-1">Structure Position</label>
                                     <select
                                         value={formData.jobId}
-                                        onChange={(e) => setFormData({ ...formData, jobId: e.target.value })}
+                                        onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setFormData({ ...formData, jobId: e.target.value })}
                                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none bg-white font-sans"
                                     >
                                         <option value="">No Position (Consultant)</option>
-                                        {allJobs.map(job => (
+                                        {allJobs.map((job: { id: string, name: string }) => (
                                             <option key={job.id} value={job.id}>{job.name}</option>
                                         ))}
                                     </select>

@@ -9,6 +9,8 @@ export interface User {
     tenantId: string;
     orgRole?: string;
     jobId?: string;
+    jobName?: string;
+    createdAt?: string;
 }
 
 export interface Document {
