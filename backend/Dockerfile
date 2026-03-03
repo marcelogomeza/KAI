@@ -25,5 +25,5 @@ COPY --from=builder /app/src/db ./src/db
 
 EXPOSE 4000
 
-# Optionally, you might run migrations here or separately.
-CMD npm run db:push:force && node dist/index.js
+# Iniciar el backend directamente
+CMD node dist/index.js
