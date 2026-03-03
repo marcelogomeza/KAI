@@ -53,9 +53,10 @@ export const update = async (req: AuthRequest, res: Response, next: NextFunction
         const tenantId = req.user!.tenantId;
         const userId = req.params.id;
         const data = updateUserSchema.parse(req.body);
+        const { password, ...otherData } = data;
         const result = await userService.updateUser(tenantId, userId, {
-            ...data,
-            passwordPlain: data.password
+            ...otherData,
+            passwordPlain: password
         });
         res.json(result);
     } catch (error) {

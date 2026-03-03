@@ -68,7 +68,7 @@ export const updateUser = async (tenantId: string, userId: string, data: {
     email?: string;
     passwordPlain?: string;
     role?: 'admin' | 'hr' | 'auditor' | 'user' | 'revisor';
-    orgRole?: string;
+    orgRole?: string | null;
     jobId?: string | null;
 }) => {
     const { passwordPlain, ...otherData } = data;

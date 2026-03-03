@@ -1,8 +1,9 @@
-import { Request, Response } from 'express';
+import { Response } from 'express';
+import { AuthRequest } from '../../types';
 import * as rolesService from './roles.service';
 
 // System Roles
-export const getSystemRoles = async (req: Request, res: Response) => {
+export const getSystemRoles = async (req: AuthRequest, res: Response) => {
     try {
         const roles = await rolesService.listSystemRoles(req.user!.tenantId);
         res.json(roles);
@@ -11,7 +12,7 @@ export const getSystemRoles = async (req: Request, res: Response) => {
     }
 };
 
-export const createSystemRole = async (req: Request, res: Response) => {
+export const createSystemRole = async (req: AuthRequest, res: Response) => {
     try {
         const role = await rolesService.createSystemRole(req.user!.tenantId, req.body);
         res.status(201).json(role);
@@ -20,7 +21,7 @@ export const createSystemRole = async (req: Request, res: Response) => {
     }
 };
 
-export const updateSystemRole = async (req: Request, res: Response) => {
+export const updateSystemRole = async (req: AuthRequest, res: Response) => {
     try {
         const role = await rolesService.updateSystemRole(req.user!.tenantId, req.params.id, req.body);
         res.json(role);
@@ -29,7 +30,7 @@ export const updateSystemRole = async (req: Request, res: Response) => {
     }
 };
 
-export const deleteSystemRole = async (req: Request, res: Response) => {
+export const deleteSystemRole = async (req: AuthRequest, res: Response) => {
     try {
         await rolesService.deleteSystemRole(req.user!.tenantId, req.params.id);
         res.json({ success: true });
@@ -39,7 +40,7 @@ export const deleteSystemRole = async (req: Request, res: Response) => {
 };
 
 // Organization Roles
-export const getOrganizationRoles = async (req: Request, res: Response) => {
+export const getOrganizationRoles = async (req: AuthRequest, res: Response) => {
     try {
         const roles = await rolesService.listOrganizationRoles(req.user!.tenantId);
         res.json(roles);
@@ -48,7 +49,7 @@ export const getOrganizationRoles = async (req: Request, res: Response) => {
     }
 };
 
-export const createOrganizationRole = async (req: Request, res: Response) => {
+export const createOrganizationRole = async (req: AuthRequest, res: Response) => {
     try {
         const role = await rolesService.createOrganizationRole(req.user!.tenantId, req.body.name);
         res.status(201).json(role);
@@ -57,7 +58,7 @@ export const createOrganizationRole = async (req: Request, res: Response) => {
     }
 };
 
-export const updateOrganizationRole = async (req: Request, res: Response) => {
+export const updateOrganizationRole = async (req: AuthRequest, res: Response) => {
     try {
         const role = await rolesService.updateOrganizationRole(req.user!.tenantId, req.params.id, req.body.name);
         res.json(role);
@@ -66,7 +67,7 @@ export const updateOrganizationRole = async (req: Request, res: Response) => {
     }
 };
 
-export const deleteOrganizationRole = async (req: Request, res: Response) => {
+export const deleteOrganizationRole = async (req: AuthRequest, res: Response) => {
     try {
         await rolesService.deleteOrganizationRole(req.user!.tenantId, req.params.id);
         res.json({ success: true });
