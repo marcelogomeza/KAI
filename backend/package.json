@@ -8,7 +8,7 @@
         "build": "tsc",
         "start": "node dist/index.js",
         "db:push": "drizzle-kit push:pg",
-        "db:push:force": "yes | drizzle-kit push:pg"
+        "db:push:force": "drizzle-kit push:pg --force"
     },
     "dependencies": {
         "bcrypt": "^5.1.1",
