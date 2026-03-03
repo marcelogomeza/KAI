@@ -8,7 +8,7 @@ export const uploadDocument = async (
     tenantId: string,
     userId: string,
     file: Express.Multer.File,
-    status: 'draft' | 'approved' = 'draft'
+    status: 'draft' | 'approved' | 'obsolete' = 'draft'
 ) => {
     const fileExtension = file.originalname.split('.').pop();
     const storageKey = `${tenantId}/${uuidv4()}.${fileExtension}`;
