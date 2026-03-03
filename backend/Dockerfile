@@ -25,5 +25,5 @@ COPY --from=builder /app/src/db ./src/db
 
 EXPOSE 4000
 
-# Iniciar el backend directamente
-CMD node dist/index.js
+# Iniciar el backend directamente sin bloqueos de base de datos
+CMD ["node", "dist/index.js"]
