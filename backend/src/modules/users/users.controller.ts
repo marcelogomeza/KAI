@@ -17,7 +17,7 @@ const createUserSchema = z.object({
 const updateUserSchema = z.object({
     name: z.string().min(2).optional(),
     email: z.string().email().optional(),
-    password: z.string().min(6).optional(),
+    password: z.string().min(6).or(z.literal('')).optional(),
     role: z.enum(['admin', 'hr', 'auditor', 'user', 'revisor']).optional(),
     orgRole: z.string().optional().nullable(),
     jobId: z.string().uuid().optional().nullable(),
@@ -53,11 +53,16 @@ export const update = async (req: AuthRequest, res: Response, next: NextFunction
         const tenantId = req.user!.tenantId;
         const userId = req.params.id;
         const data = updateUserSchema.parse(req.body);
+
+        // Clean up data: Remove password if empty (no change), and jobId if empty string
         const { password, ...otherData } = data;
-        const result = await userService.updateUser(tenantId, userId, {
-            ...otherData,
-            passwordPlain: password
-        });
+        const updatePayload: any = { ...otherData };
+
+        if (password && password.trim().length >= 6) {
+            updatePayload.passwordPlain = password;
+        }
+
+        const result = await userService.updateUser(tenantId, userId, updatePayload);
         res.json(result);
     } catch (error) {
         if (error instanceof z.ZodError) {
