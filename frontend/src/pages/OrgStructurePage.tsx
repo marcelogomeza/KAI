@@ -259,7 +259,7 @@ export const OrgStructurePage: React.FC = () => {
                                     type="text"
                                     className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-primary-500"
                                     value={formData.name}
-                                    onChange={e => setFormData({ name: e.target.value })}
+                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ name: e.target.value })}
                                     placeholder={modalType === 'unit' ? "e.g. IT Department" : "e.g. Senior Developer"}
                                 />
                             </div>

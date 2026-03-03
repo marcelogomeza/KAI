@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import api from '../api/axios';
-import { Plus, Search, Edit2, Trash2, X, Shield } from 'lucide-react';
+import { Plus, Edit2, Trash2, X } from 'lucide-react';
 
 interface Role {
     id: string;
@@ -12,7 +12,7 @@ interface RolesPageProps {
     type: 'system' | 'organization';
 }
 
-export const RolesPage: React.FC<RolesPageProps> = ({ type }) => {
+export const RolesPage: React.FC<RolesPageProps> = ({ type }: RolesPageProps) => {
     const [roles, setRoles] = useState<Role[]>([]);
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -104,7 +104,7 @@ export const RolesPage: React.FC<RolesPageProps> = ({ type }) => {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-200 text-sm">
-                            {roles.map((role) => (
+                            {roles.map((role: Role) => (
                                 <tr key={role.id} className="hover:bg-gray-50 transition-colors group">
                                     <td className="px-6 py-4 font-medium text-gray-900">{role.name}</td>
                                     {type === 'system' && <td className="px-6 py-4 text-gray-500">{role.code}</td>}
@@ -152,7 +152,7 @@ export const RolesPage: React.FC<RolesPageProps> = ({ type }) => {
                                     required
                                     type="text"
                                     value={formData.name}
-                                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, name: e.target.value })}
                                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none"
                                 />
                             </div>
@@ -163,7 +163,7 @@ export const RolesPage: React.FC<RolesPageProps> = ({ type }) => {
                                         required
                                         type="text"
                                         value={formData.code}
-                                        onChange={(e) => setFormData({ ...formData, code: e.target.value })}
+                                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, code: e.target.value })}
                                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none"
                                     />
                                 </div>
