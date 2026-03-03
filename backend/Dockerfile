@@ -6,8 +6,8 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install
 
-COPY tsconfig.json drizzle.config.ts ./
-COPY src/ ./src/
+# Copy all source files
+COPY . .
 
 RUN npm run build
 
@@ -17,10 +17,11 @@ FROM node:18-alpine
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm install --only=production
+RUN npm install
 
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/drizzle.config.ts ./
+COPY --from=builder /app/src/db ./src/db
 
 EXPOSE 4000
 
