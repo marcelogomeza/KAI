@@ -68,3 +68,12 @@ export const jobs = pgTable('jobs', {
     unitId: uuid('unit_id').references(() => orgUnits.id).notNull(),
     createdAt: timestamp('created_at').defaultNow().notNull(),
 });
+
+export const settings = pgTable('settings', {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').references(() => tenants.id).notNull(),
+    key: varchar('key', { length: 255 }).notNull(),
+    value: text('value').notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
