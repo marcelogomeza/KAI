@@ -1,0 +1,2 @@
+src/modules/settings/settings.service.ts(1,20): error TS2307: Cannot find module '../../db' or its corresponding type declarations.
+src/modules/settings/settings.service.ts(11,38): error TS7006: Parameter 'tx' implicitly has an 'any' type.

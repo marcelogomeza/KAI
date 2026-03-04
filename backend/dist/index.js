@@ -52,6 +52,7 @@ const documents_routes_1 = __importDefault(require("./modules/documents/document
 const users_routes_1 = __importDefault(require("./modules/users/users.routes"));
 const roles_routes_1 = __importDefault(require("./modules/roles/roles.routes"));
 const org_structure_routes_1 = __importDefault(require("./modules/org-structure/org-structure.routes"));
+const settings_routes_1 = __importDefault(require("./modules/settings/settings.routes"));
 const minio_1 = require("./storage/minio");
 // Routes
 app.use('/api/auth', auth_routes_1.default);
@@ -59,6 +60,7 @@ app.use('/api/documents', documents_routes_1.default);
 app.use('/api/users', users_routes_1.default);
 app.use('/api/roles', roles_routes_1.default);
 app.use('/api/org-structure', org_structure_routes_1.default);
+app.use('/api/settings', settings_routes_1.default);
 // Base health check
 app.get('/health', (req, res) => {
     res.json({ status: 'ok', time: new Date().toISOString() });

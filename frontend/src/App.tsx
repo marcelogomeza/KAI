@@ -6,6 +6,7 @@ import { RepositoryPage } from './pages/RepositoryPage';
 import { UsersPage } from './pages/UsersPage';
 import { RolesPage } from './pages/RolesPage';
 import { OrgStructurePage } from './pages/OrgStructurePage';
+import { SettingsPage } from './pages/SettingsPage';
 import { Layout } from './components/Layout';
 
 function App() {
@@ -23,6 +24,7 @@ function App() {
                         <Route path="/users/system-roles" element={<Layout><RolesPage type="system" /></Layout>} />
                         <Route path="/users/organization-roles" element={<Layout><RolesPage type="organization" /></Layout>} />
                         <Route path="/users/org-structure" element={<Layout><OrgStructurePage /></Layout>} />
+                        <Route path="/settings" element={<Layout><SettingsPage /></Layout>} />
                     </Route>
 
                     {/* Fallback */}
