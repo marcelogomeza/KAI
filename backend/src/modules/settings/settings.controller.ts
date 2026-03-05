@@ -60,8 +60,7 @@ export const testConnection = async (req: AuthRequest, res: Response, next: Next
 
             // Fix potential newline escaping and quotes wrapper that cause DECODER routines errors
             let privateKey = gcp_private_key.replace(/^"|"$/g, '');
-            privateKey = privateKey.replace(/(\\n|\\r\\n|\\r)/g, '\n');
-            privateKey = privateKey.replace(/\\+"/g, ''); // just in case there are literal \ at the end
+            privateKey = privateKey.split('\\n').join('\n');
 
             const storage = new Storage({
                 projectId: gcp_project_id,
