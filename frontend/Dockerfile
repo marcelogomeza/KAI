@@ -7,7 +7,7 @@ COPY package*.json ./
 RUN npm install
 
 # Force rebuild to reflect login and roles changes
-ARG CACHE_BUST=2026-03-03-02
+ARG CACHE_BUST=2026-03-04-01
 
 COPY . .
 RUN npm run build
