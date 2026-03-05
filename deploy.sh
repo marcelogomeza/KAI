@@ -10,6 +10,9 @@ git pull origin main
 echo "🐳 Reconstruyendo y levantando contenedores Docker (Producción)..."
 docker compose -f docker-compose.prod.yml up --build -d
 
+echo "⏳ Esperando 15 segundos a que la base de datos se inicialice..."
+sleep 15
+
 # Actualizar el esquema de la base de datos para asegurar que las nuevas tablas (ej. settings) se creen
 echo "🗄️ Actualizando esquema de la base de datos en producción..."
 docker compose -f docker-compose.prod.yml exec -T backend npm run db:push
