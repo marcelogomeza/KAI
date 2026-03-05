@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import api from '../api/axios';
-import { Save, CheckCircle2, AlertCircle, RefreshCw } from 'lucide-react';
+import { Save, CheckCircle2, AlertCircle, RefreshCw, XCircle } from 'lucide-react';
 import { clsx } from 'clsx';
 
 type Provider = 'google_cloud' | 'aws_s3' | 'onedrive';
@@ -9,6 +9,7 @@ export const SettingsPage: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [testing, setTesting] = useState(false);
+    const [testStatus, setTestStatus] = useState<'idle' | 'success' | 'error'>('idle');
     const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
 
     const [provider, setProvider] = useState<Provider>('google_cloud');
@@ -42,6 +43,7 @@ export const SettingsPage: React.FC = () => {
         if (name === 'storage_provider') {
             setProvider(value as Provider);
             setMessage(null);
+            setTestStatus('idle');
         }
     };
 
@@ -49,6 +51,7 @@ export const SettingsPage: React.FC = () => {
         try {
             setSaving(true);
             setMessage(null);
+            setTestStatus('idle');
 
             // Just saving the current provider + its specific keys
             const keysToSave = ['storage_provider'];
@@ -79,6 +82,7 @@ export const SettingsPage: React.FC = () => {
     const handleTest = async () => {
         try {
             setTesting(true);
+            setTestStatus('idle');
             setMessage(null);
 
             const payload = {
@@ -90,12 +94,15 @@ export const SettingsPage: React.FC = () => {
             const response = await api.post('/settings/test', payload);
             if (response.data.success) {
                 setMessage({ type: 'success', text: response.data.message || 'Conexión probada con éxito.' });
+                setTestStatus('success');
             } else {
                 setMessage({ type: 'error', text: response.data.message || 'La prueba de conexión falló.' });
+                setTestStatus('error');
             }
         } catch (error) {
             console.error('Error testing connection:', error);
             setMessage({ type: 'error', text: 'Error al probar la conexión con el proveedor.' });
+            setTestStatus('error');
         } finally {
             setTesting(false);
         }
@@ -216,9 +223,17 @@ export const SettingsPage: React.FC = () => {
                     <button
                         onClick={handleTest}
                         disabled={testing || saving}
-                        className="inline-flex items-center justify-center px-6 py-2 border border-gray-300 text-gray-700 bg-white rounded-lg shadow-sm hover:bg-gray-50 transition-colors font-semibold disabled:opacity-50"
+                        className={clsx(
+                            "inline-flex items-center justify-center px-6 py-2 border rounded-lg shadow-sm font-semibold transition-colors disabled:opacity-50",
+                            testStatus === 'success' ? "border-green-300 bg-green-50 text-green-700 hover:bg-green-100" :
+                                testStatus === 'error' ? "border-red-300 bg-red-50 text-red-700 hover:bg-red-100" :
+                                    "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
+                        )}
                     >
-                        {testing ? <RefreshCw className="w-4 h-4 mr-2 animate-spin" /> : <CheckCircle2 className="w-4 h-4 mr-2 text-gray-400" />}
+                        {testing ? <RefreshCw className="w-4 h-4 mr-2 animate-spin" /> :
+                            testStatus === 'success' ? <CheckCircle2 className="w-4 h-4 mr-2 text-green-600" /> :
+                                testStatus === 'error' ? <XCircle className="w-4 h-4 mr-2 text-red-600" /> :
+                                    <CheckCircle2 className="w-4 h-4 mr-2 text-gray-400" />}
                         Probar Conexión
                     </button>
                     <button
