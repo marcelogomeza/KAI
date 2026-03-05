@@ -10,12 +10,16 @@ export const upload = async (req: AuthRequest, res: Response, next: NextFunction
 
         const user = req.user!;
         const status = (req.body.status as 'draft' | 'approved' | 'obsolete') || 'draft';
+        const type = (req.body.type as 'process' | 'procedure' | 'guide') || 'process';
+        const code = req.body.code as string;
+        const name = req.body.name as string;
+        const ownerId = req.body.ownerId as string || user.userId;
 
         const document = await documentsService.uploadDocument(
             user.tenantId,
             user.userId,
             req.file,
-            status
+            { code, name, type, status, ownerId }
         );
 
         res.status(201).json(document);

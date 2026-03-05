@@ -89,7 +89,7 @@ const getOrganizationRoles = async (req, res) => {
 exports.getOrganizationRoles = getOrganizationRoles;
 const createOrganizationRole = async (req, res) => {
     try {
-        const role = await rolesService.createOrganizationRole(req.user.tenantId, req.body.name);
+        const role = await rolesService.createOrganizationRole(req.user.tenantId, req.body);
         res.status(201).json(role);
     }
     catch (error) {
@@ -99,7 +99,7 @@ const createOrganizationRole = async (req, res) => {
 exports.createOrganizationRole = createOrganizationRole;
 const updateOrganizationRole = async (req, res) => {
     try {
-        const role = await rolesService.updateOrganizationRole(req.user.tenantId, req.params.id, req.body.name);
+        const role = await rolesService.updateOrganizationRole(req.user.tenantId, req.params.id, req.body);
         res.json(role);
     }
     catch (error) {

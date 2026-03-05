@@ -1,7 +1,8 @@
-import { pgTable, uuid, varchar, timestamp, text, integer, pgEnum } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, varchar, timestamp, text, integer, pgEnum, jsonb } from 'drizzle-orm/pg-core';
 
 export const roleEnum = pgEnum('role', ['admin', 'hr', 'auditor', 'user', 'revisor']);
 export const statusEnum = pgEnum('status', ['draft', 'approved', 'obsolete']);
+export const documentTypeEnum = pgEnum('document_type', ['process', 'procedure', 'guide']);
 
 export const tenants = pgTable('tenants', {
     id: uuid('id').defaultRandom().primaryKey(),
@@ -26,13 +27,16 @@ export const users = pgTable('users', {
 export const documents = pgTable('documents', {
     id: uuid('id').defaultRandom().primaryKey(),
     tenantId: uuid('tenant_id').references(() => tenants.id).notNull(),
+    code: varchar('code', { length: 50 }),
     name: varchar('name', { length: 255 }).notNull(),
+    type: documentTypeEnum('type').notNull().default('process'),
     originalFilename: text('original_filename').notNull(),
     mimeType: varchar('mime_type', { length: 100 }).notNull(),
     sizeBytes: integer('size_bytes').notNull(),
     storageKey: text('storage_key').notNull(),
     status: statusEnum('status').default('draft').notNull(),
     uploadedBy: uuid('uploaded_by').references(() => users.id).notNull(),
+    ownerId: uuid('owner_id').references(() => users.id),
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
@@ -49,6 +53,7 @@ export const organizationRoles = pgTable('organization_roles', {
     id: uuid('id').defaultRandom().primaryKey(),
     tenantId: uuid('tenant_id').references(() => tenants.id).notNull(),
     name: varchar('name', { length: 255 }).notNull(),
+    permissions: jsonb('permissions').default({}).notNull(),
     createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 

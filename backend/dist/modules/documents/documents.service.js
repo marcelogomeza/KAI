@@ -6,7 +6,7 @@ const schema_1 = require("../../db/schema");
 const minio_1 = require("../../storage/minio");
 const uuid_1 = require("uuid");
 const drizzle_orm_1 = require("drizzle-orm");
-const uploadDocument = async (tenantId, userId, file, status = 'draft') => {
+const uploadDocument = async (tenantId, userId, file, meta) => {
     const fileExtension = file.originalname.split('.').pop();
     const storageKey = `${tenantId}/${(0, uuid_1.v4)()}.${fileExtension}`;
     // Upload to MinIO
@@ -14,13 +14,16 @@ const uploadDocument = async (tenantId, userId, file, status = 'draft') => {
     // Save to DB
     const [newDoc] = await db_1.db.insert(schema_1.documents).values({
         tenantId,
-        name: file.originalname,
+        code: meta.code,
+        name: meta.name || file.originalname,
+        type: meta.type || 'process',
         originalFilename: file.originalname,
         mimeType: file.mimetype,
         sizeBytes: file.size,
         storageKey,
-        status,
+        status: meta.status || 'draft',
         uploadedBy: userId,
+        ownerId: meta.ownerId || userId,
     }).returning();
     return newDoc;
 };

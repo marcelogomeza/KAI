@@ -33,17 +33,22 @@ export const listOrganizationRoles = async (tenantId: string) => {
     return await db.select().from(organizationRoles).where(eq(organizationRoles.tenantId, tenantId));
 };
 
-export const createOrganizationRole = async (tenantId: string, name: string) => {
+export const createOrganizationRole = async (tenantId: string, data: { name: string, permissions?: any }) => {
     const [role] = await db.insert(organizationRoles).values({
         tenantId,
-        name
+        name: data.name,
+        permissions: data.permissions || {}
     }).returning();
     return role;
 };
 
-export const updateOrganizationRole = async (tenantId: string, roleId: string, name: string) => {
+export const updateOrganizationRole = async (tenantId: string, roleId: string, data: { name?: string, permissions?: any }) => {
+    const updateData: any = {};
+    if (data.name !== undefined) updateData.name = data.name;
+    if (data.permissions !== undefined) updateData.permissions = data.permissions;
+
     const [role] = await db.update(organizationRoles)
-        .set({ name })
+        .set(updateData)
         .where(and(eq(organizationRoles.id, roleId), eq(organizationRoles.tenantId, tenantId)))
         .returning();
     return role;

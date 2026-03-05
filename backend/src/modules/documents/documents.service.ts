@@ -8,7 +8,13 @@ export const uploadDocument = async (
     tenantId: string,
     userId: string,
     file: Express.Multer.File,
-    status: 'draft' | 'approved' | 'obsolete' = 'draft'
+    meta: {
+        code?: string,
+        name: string,
+        type: 'process' | 'procedure' | 'guide',
+        status?: 'draft' | 'approved' | 'obsolete',
+        ownerId?: string,
+    }
 ) => {
     const fileExtension = file.originalname.split('.').pop();
     const storageKey = `${tenantId}/${uuidv4()}.${fileExtension}`;
@@ -25,13 +31,16 @@ export const uploadDocument = async (
     // Save to DB
     const [newDoc] = await db.insert(documents).values({
         tenantId,
-        name: file.originalname,
+        code: meta.code,
+        name: meta.name || file.originalname,
+        type: meta.type || 'process',
         originalFilename: file.originalname,
         mimeType: file.mimetype,
         sizeBytes: file.size,
         storageKey,
-        status,
+        status: meta.status || 'draft',
         uploadedBy: userId,
+        ownerId: meta.ownerId || userId,
     }).returning();
 
     return newDoc;

@@ -15,6 +15,8 @@ export interface User {
 
 export interface Document {
     id: string;
+    code?: string;
+    type?: string;
     tenantId: string;
     name: string;
     originalFilename: string;
@@ -22,6 +24,7 @@ export interface Document {
     sizeBytes: number;
     status: DocumentStatus;
     uploadedBy: string;
+    ownerId?: string;
     createdAt: string;
     updatedAt: string;
 }

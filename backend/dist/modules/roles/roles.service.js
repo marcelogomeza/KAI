@@ -35,17 +35,23 @@ const listOrganizationRoles = async (tenantId) => {
     return await db_1.db.select().from(schema_1.organizationRoles).where((0, drizzle_orm_1.eq)(schema_1.organizationRoles.tenantId, tenantId));
 };
 exports.listOrganizationRoles = listOrganizationRoles;
-const createOrganizationRole = async (tenantId, name) => {
+const createOrganizationRole = async (tenantId, data) => {
     const [role] = await db_1.db.insert(schema_1.organizationRoles).values({
         tenantId,
-        name
+        name: data.name,
+        permissions: data.permissions || {}
     }).returning();
     return role;
 };
 exports.createOrganizationRole = createOrganizationRole;
-const updateOrganizationRole = async (tenantId, roleId, name) => {
+const updateOrganizationRole = async (tenantId, roleId, data) => {
+    const updateData = {};
+    if (data.name !== undefined)
+        updateData.name = data.name;
+    if (data.permissions !== undefined)
+        updateData.permissions = data.permissions;
     const [role] = await db_1.db.update(schema_1.organizationRoles)
-        .set({ name })
+        .set(updateData)
         .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(schema_1.organizationRoles.id, roleId), (0, drizzle_orm_1.eq)(schema_1.organizationRoles.tenantId, tenantId)))
         .returning();
     return role;

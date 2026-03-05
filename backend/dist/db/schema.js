@@ -1,9 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.settings = exports.jobs = exports.orgUnits = exports.organizationRoles = exports.systemRoles = exports.documents = exports.users = exports.tenants = exports.statusEnum = exports.roleEnum = void 0;
+exports.settings = exports.jobs = exports.orgUnits = exports.organizationRoles = exports.systemRoles = exports.documents = exports.users = exports.tenants = exports.documentTypeEnum = exports.statusEnum = exports.roleEnum = void 0;
 const pg_core_1 = require("drizzle-orm/pg-core");
 exports.roleEnum = (0, pg_core_1.pgEnum)('role', ['admin', 'hr', 'auditor', 'user', 'revisor']);
 exports.statusEnum = (0, pg_core_1.pgEnum)('status', ['draft', 'approved', 'obsolete']);
+exports.documentTypeEnum = (0, pg_core_1.pgEnum)('document_type', ['process', 'procedure', 'guide']);
 exports.tenants = (0, pg_core_1.pgTable)('tenants', {
     id: (0, pg_core_1.uuid)('id').defaultRandom().primaryKey(),
     name: (0, pg_core_1.varchar)('name', { length: 255 }).notNull(),
@@ -25,13 +26,16 @@ exports.users = (0, pg_core_1.pgTable)('users', {
 exports.documents = (0, pg_core_1.pgTable)('documents', {
     id: (0, pg_core_1.uuid)('id').defaultRandom().primaryKey(),
     tenantId: (0, pg_core_1.uuid)('tenant_id').references(() => exports.tenants.id).notNull(),
+    code: (0, pg_core_1.varchar)('code', { length: 50 }),
     name: (0, pg_core_1.varchar)('name', { length: 255 }).notNull(),
+    type: (0, exports.documentTypeEnum)('type').notNull().default('process'),
     originalFilename: (0, pg_core_1.text)('original_filename').notNull(),
     mimeType: (0, pg_core_1.varchar)('mime_type', { length: 100 }).notNull(),
     sizeBytes: (0, pg_core_1.integer)('size_bytes').notNull(),
     storageKey: (0, pg_core_1.text)('storage_key').notNull(),
     status: (0, exports.statusEnum)('status').default('draft').notNull(),
     uploadedBy: (0, pg_core_1.uuid)('uploaded_by').references(() => exports.users.id).notNull(),
+    ownerId: (0, pg_core_1.uuid)('owner_id').references(() => exports.users.id),
     createdAt: (0, pg_core_1.timestamp)('created_at').defaultNow().notNull(),
     updatedAt: (0, pg_core_1.timestamp)('updated_at').defaultNow().notNull(),
 });
@@ -46,6 +50,7 @@ exports.organizationRoles = (0, pg_core_1.pgTable)('organization_roles', {
     id: (0, pg_core_1.uuid)('id').defaultRandom().primaryKey(),
     tenantId: (0, pg_core_1.uuid)('tenant_id').references(() => exports.tenants.id).notNull(),
     name: (0, pg_core_1.varchar)('name', { length: 255 }).notNull(),
+    permissions: (0, pg_core_1.jsonb)('permissions').default({}).notNull(),
     createdAt: (0, pg_core_1.timestamp)('created_at').defaultNow().notNull(),
 });
 exports.orgUnits = (0, pg_core_1.pgTable)('org_units', {

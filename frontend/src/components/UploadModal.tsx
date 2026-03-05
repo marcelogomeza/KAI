@@ -11,6 +11,9 @@ interface UploadModalProps {
 export const UploadModal: React.FC<UploadModalProps> = ({ isOpen, onClose, onSuccess }) => {
     const [file, setFile] = useState<File | null>(null);
     const [status, setStatus] = useState<'draft' | 'approved'>('draft');
+    const [code, setCode] = useState('');
+    const [name, setName] = useState('');
+    const [type, setType] = useState('process');
     const [uploading, setUploading] = useState(false);
     const [progress, setProgress] = useState(0);
     const [error, setError] = useState('');
@@ -27,6 +30,7 @@ export const UploadModal: React.FC<UploadModalProps> = ({ isOpen, onClose, onSuc
                 return;
             }
             setFile(selected);
+            if (!name) setName(selected.name);
             setError('');
         }
     };
@@ -41,6 +45,9 @@ export const UploadModal: React.FC<UploadModalProps> = ({ isOpen, onClose, onSuc
         const formData = new FormData();
         formData.append('file', file);
         formData.append('status', status);
+        formData.append('code', code);
+        formData.append('name', name);
+        formData.append('type', type);
 
         try {
             await api.post('/documents', formData, {
@@ -65,6 +72,9 @@ export const UploadModal: React.FC<UploadModalProps> = ({ isOpen, onClose, onSuc
 
     const handleClose = () => {
         setFile(null);
+        setCode('');
+        setName('');
+        setType('process');
         setProgress(0);
         setUploading(false);
         setError('');
@@ -112,6 +122,45 @@ export const UploadModal: React.FC<UploadModalProps> = ({ isOpen, onClose, onSuc
                                 {file ? `${(file.size / (1024 * 1024)).toFixed(2)} MB` : 'PDF, DOC, TXT up to 20MB'}
                             </p>
                         </div>
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700">Document ID</label>
+                        <input
+                            type="text"
+                            value={code}
+                            onChange={(e) => setCode(e.target.value)}
+                            disabled={uploading}
+                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                            placeholder="e.g. PROC-001"
+                        />
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700">Name</label>
+                        <input
+                            type="text"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            disabled={uploading}
+                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                            placeholder="Document name"
+                            required
+                        />
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700">Type</label>
+                        <select
+                            value={type}
+                            onChange={(e) => setType(e.target.value)}
+                            disabled={uploading}
+                            className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm rounded-md border"
+                        >
+                            <option value="process">Proceso</option>
+                            <option value="procedure">Procedimiento</option>
+                            <option value="guide">Guía</option>
+                        </select>
                     </div>
 
                     <div>

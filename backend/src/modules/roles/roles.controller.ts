@@ -51,7 +51,7 @@ export const getOrganizationRoles = async (req: AuthRequest, res: Response) => {
 
 export const createOrganizationRole = async (req: AuthRequest, res: Response) => {
     try {
-        const role = await rolesService.createOrganizationRole(req.user!.tenantId, req.body.name);
+        const role = await rolesService.createOrganizationRole(req.user!.tenantId, req.body);
         res.status(201).json(role);
     } catch (error) {
         res.status(500).json({ error: 'Error creating organization role' });
@@ -60,7 +60,7 @@ export const createOrganizationRole = async (req: AuthRequest, res: Response) =>
 
 export const updateOrganizationRole = async (req: AuthRequest, res: Response) => {
     try {
-        const role = await rolesService.updateOrganizationRole(req.user!.tenantId, req.params.id, req.body.name);
+        const role = await rolesService.updateOrganizationRole(req.user!.tenantId, req.params.id, req.body);
         res.json(role);
     } catch (error) {
         res.status(500).json({ error: 'Error updating organization role' });

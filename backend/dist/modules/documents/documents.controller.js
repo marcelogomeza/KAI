@@ -42,7 +42,11 @@ const upload = async (req, res, next) => {
         }
         const user = req.user;
         const status = req.body.status || 'draft';
-        const document = await documentsService.uploadDocument(user.tenantId, user.userId, req.file, status);
+        const type = req.body.type || 'process';
+        const code = req.body.code;
+        const name = req.body.name;
+        const ownerId = req.body.ownerId || user.userId;
+        const document = await documentsService.uploadDocument(user.tenantId, user.userId, req.file, { code, name, type, status, ownerId });
         res.status(201).json(document);
     }
     catch (error) {

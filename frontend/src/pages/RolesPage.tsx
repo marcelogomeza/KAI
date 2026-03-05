@@ -6,6 +6,7 @@ interface Role {
     id: string;
     name: string;
     code?: string;
+    permissions?: any;
 }
 
 interface RolesPageProps {
@@ -17,7 +18,12 @@ export const RolesPage: React.FC<RolesPageProps> = ({ type }: RolesPageProps) =>
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingRole, setEditingRole] = useState<Role | null>(null);
-    const [formData, setFormData] = useState({ name: '', code: '' });
+    const initialPermissions = {
+        process: { create: false, update: false, delete: false, approve: false },
+        procedure: { create: false, update: false, delete: false, approve: false },
+        guide: { create: false, update: false, delete: false, approve: false }
+    };
+    const [formData, setFormData] = useState({ name: '', code: '', permissions: initialPermissions });
 
     const fetchRoles = async () => {
         try {
@@ -45,7 +51,7 @@ export const RolesPage: React.FC<RolesPageProps> = ({ type }: RolesPageProps) =>
             }
             setIsModalOpen(false);
             setEditingRole(null);
-            setFormData({ name: '', code: '' });
+            setFormData({ name: '', code: '', permissions: initialPermissions });
             fetchRoles();
         } catch (error) {
             console.error('Error saving role:', error);
@@ -54,7 +60,11 @@ export const RolesPage: React.FC<RolesPageProps> = ({ type }: RolesPageProps) =>
 
     const handleEdit = (role: Role) => {
         setEditingRole(role);
-        setFormData({ name: role.name, code: role.code || '' });
+        setFormData({
+            name: role.name,
+            code: role.code || '',
+            permissions: role.permissions || initialPermissions
+        });
         setIsModalOpen(true);
     };
 
@@ -83,7 +93,7 @@ export const RolesPage: React.FC<RolesPageProps> = ({ type }: RolesPageProps) =>
                 <button
                     onClick={() => {
                         setEditingRole(null);
-                        setFormData({ name: '', code: '' });
+                        setFormData({ name: '', code: '', permissions: initialPermissions });
                         setIsModalOpen(true);
                     }}
                     className="inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-semibold shadow-sm"
@@ -166,6 +176,53 @@ export const RolesPage: React.FC<RolesPageProps> = ({ type }: RolesPageProps) =>
                                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, code: e.target.value })}
                                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none"
                                     />
+                                </div>
+                            )}
+
+                            {type === 'organization' && (
+                                <div className="mt-4">
+                                    <h3 className="text-sm font-medium text-gray-700 mb-2">Permissions Matrix</h3>
+                                    <div className="overflow-x-auto border border-gray-200 rounded-lg">
+                                        <table className="w-full text-left text-sm">
+                                            <thead className="bg-gray-50">
+                                                <tr>
+                                                    <th className="px-4 py-2 font-medium text-gray-500">Document Type</th>
+                                                    <th className="px-4 py-2 font-medium text-gray-500 text-center">Create</th>
+                                                    <th className="px-4 py-2 font-medium text-gray-500 text-center">Update</th>
+                                                    <th className="px-4 py-2 font-medium text-gray-500 text-center">Delete</th>
+                                                    <th className="px-4 py-2 font-medium text-gray-500 text-center">Approve</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-gray-200">
+                                                {['process', 'procedure', 'guide'].map((docType) => (
+                                                    <tr key={docType}>
+                                                        <td className="px-4 py-2 font-medium text-gray-900 capitalize">{docType}</td>
+                                                        {['create', 'update', 'delete', 'approve'].map((action) => (
+                                                            <td key={action} className="px-4 py-2 text-center">
+                                                                <input
+                                                                    type="checkbox"
+                                                                    checked={(formData.permissions as any)[docType]?.[action] || false}
+                                                                    onChange={(e) => {
+                                                                        setFormData({
+                                                                            ...formData,
+                                                                            permissions: {
+                                                                                ...formData.permissions,
+                                                                                [docType]: {
+                                                                                    ...(formData.permissions as any)[docType],
+                                                                                    [action]: e.target.checked
+                                                                                }
+                                                                            }
+                                                                        });
+                                                                    }}
+                                                                    className="w-4 h-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500"
+                                                                />
+                                                            </td>
+                                                        ))}
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </div>
                             )}
                             <div className="flex justify-end space-x-3 pt-4">

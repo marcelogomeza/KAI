@@ -115,28 +115,33 @@ export const RepositoryPage: React.FC = () => {
                         <table className="min-w-full divide-y divide-gray-200">
                             <thead className="bg-gray-50 sticky top-0 z-10">
                                 <tr>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Size</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Owner</th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created At</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Updated At</th>
                                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
                                 {filteredDocuments.map((doc) => (
                                     <tr key={doc.id} className="hover:bg-gray-50 transition-colors">
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            {doc.code || '-'}
+                                        </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="flex items-center">
                                                 <FileText className="h-5 w-5 text-gray-400 mr-3" />
                                                 <div className="text-sm font-medium text-gray-900 truncate max-w-xs">{doc.name}</div>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {doc.mimeType.split('/')[1]?.toUpperCase() || 'File'}
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 capitalize">
+                                            {doc.type || 'Process'}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {(doc.sizeBytes / 1024).toFixed(1)} KB
+                                            {doc.ownerId || doc.uploadedBy}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <StatusBadge status={doc.status} />
@@ -144,8 +149,18 @@ export const RepositoryPage: React.FC = () => {
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                             {new Date(doc.createdAt).toLocaleDateString()}
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                            <button className="text-primary-600 hover:text-primary-900">Download</button>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            {new Date(doc.updatedAt).toLocaleDateString()}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
+                                            <button className="text-primary-600 hover:text-primary-900">Consult</button>
+                                            {canUpload && (
+                                                <>
+                                                    <button className="text-gray-600 hover:text-gray-900">Update</button>
+                                                    <button className="text-green-600 hover:text-green-900">Approve</button>
+                                                    <button className="text-red-600 hover:text-red-900">Delete</button>
+                                                </>
+                                            )}
                                         </td>
                                     </tr>
                                 ))}

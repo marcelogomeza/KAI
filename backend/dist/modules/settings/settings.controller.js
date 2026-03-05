@@ -87,8 +87,9 @@ const testConnection = async (req, res, next) => {
             if (!gcp_project_id || !gcp_client_email || !gcp_private_key || !gcp_bucket_name) {
                 return res.json({ success: false, message: 'Faltan credenciales de Google Cloud' });
             }
-            // Fix potential newline escaping
-            const privateKey = gcp_private_key.replace(/\\n/g, '\n');
+            // Fix potential newline escaping and quotes wrapper that cause DECODER routines errors
+            let privateKey = gcp_private_key.replace(/^"|"$/g, '');
+            privateKey = privateKey.split('\\n').join('\n');
             const storage = new storage_1.Storage({
                 projectId: gcp_project_id,
                 credentials: {
