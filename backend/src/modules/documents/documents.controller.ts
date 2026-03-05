@@ -43,3 +43,34 @@ export const list = async (req: AuthRequest, res: Response, next: NextFunction) 
         next(error);
     }
 };
+
+export const update = async (req: AuthRequest, res: Response, next: NextFunction) => {
+    try {
+        const user = req.user!;
+        const { code, name, type, ownerId } = req.body;
+        const doc = await documentsService.updateDocument(user.tenantId, req.params.id, { code, name, type, ownerId });
+        res.json(doc);
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const approve = async (req: AuthRequest, res: Response, next: NextFunction) => {
+    try {
+        const user = req.user!;
+        const doc = await documentsService.approveDocument(user.tenantId, req.params.id);
+        res.json(doc);
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const remove = async (req: AuthRequest, res: Response, next: NextFunction) => {
+    try {
+        const user = req.user!;
+        await documentsService.deleteDocument(user.tenantId, req.params.id);
+        res.sendStatus(204);
+    } catch (error) {
+        next(error);
+    }
+};

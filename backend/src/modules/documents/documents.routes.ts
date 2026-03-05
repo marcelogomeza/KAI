@@ -1,7 +1,8 @@
 import { Router } from 'express';
 import multer from 'multer';
-import { upload, list } from './documents.controller';
+import { upload, list, update, approve, remove } from './documents.controller';
 import { requireAuth, requireRole } from '../../middleware/auth';
+import { requireDocPermission } from '../../middleware/permissions';
 
 const router = Router();
 
@@ -27,15 +28,24 @@ const uploadMiddleware = multer({
 // Protect all document routes
 router.use(requireAuth);
 
-// Upload: Only Admin & Revisor
+// Upload: Checks 'create' permission based on body.type
 router.post(
     '/',
-    requireRole(['admin', 'revisor']),
+    requireDocPermission('create'),
     uploadMiddleware.single('file'),
     upload
 );
 
-// List: All roles (Admin, Revisor, Usuario)
+// List: Accessible by anyone authenticated (we can filter in UI or controller)
 router.get('/', list);
+
+// Update: Checks 'update' permission
+router.put('/:id', requireDocPermission('update'), update);
+
+// Approve: Checks 'approve' permission
+router.patch('/:id/approve', requireDocPermission('approve'), approve);
+
+// Delete: Checks 'delete' permission
+router.delete('/:id', requireDocPermission('delete'), remove);
 
 export default router;

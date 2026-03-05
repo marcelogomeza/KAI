@@ -37,6 +37,27 @@ export const RepositoryPage: React.FC = () => {
         doc.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
+    const handleApprove = async (id: string) => {
+        try {
+            await api.patch(`/documents/${id}/approve`);
+            fetchDocuments();
+        } catch (error: any) {
+            alert(error.response?.data?.error || 'Failed to approve document');
+        }
+    };
+
+    const handleDelete = async (id: string) => {
+        if (!window.confirm('Are you sure you want to delete this document?')) {
+            return;
+        }
+        try {
+            await api.delete(`/documents/${id}`);
+            fetchDocuments();
+        } catch (error: any) {
+            alert(error.response?.data?.error || 'Failed to delete document');
+        }
+    };
+
     const StatusBadge = ({ status }: { status: string }) => {
         const colors: Record<string, string> = {
             approved: 'bg-green-100 text-green-800',
@@ -157,8 +178,20 @@ export const RepositoryPage: React.FC = () => {
                                             {canUpload && (
                                                 <>
                                                     <button className="text-gray-600 hover:text-gray-900">Update</button>
-                                                    <button className="text-green-600 hover:text-green-900">Approve</button>
-                                                    <button className="text-red-600 hover:text-red-900">Delete</button>
+                                                    {doc.status !== 'approved' && (
+                                                        <button
+                                                            onClick={() => handleApprove(doc.id)}
+                                                            className="text-green-600 hover:text-green-900"
+                                                        >
+                                                            Approve
+                                                        </button>
+                                                    )}
+                                                    <button
+                                                        onClick={() => handleDelete(doc.id)}
+                                                        className="text-red-600 hover:text-red-900"
+                                                    >
+                                                        Delete
+                                                    </button>
                                                 </>
                                             )}
                                         </td>

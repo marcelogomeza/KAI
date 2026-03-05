@@ -62,3 +62,34 @@ export const listDocuments = async (tenantId: string, filterStatus?: string) => 
         .from(documents)
         .where(eq(documents.tenantId, tenantId));
 };
+
+export const updateDocument = async (tenantId: string, docId: string, updates: Partial<{ code: string, name: string, type: 'process' | 'procedure' | 'guide', ownerId: string }>) => {
+    const [updatedDoc] = await db.update(documents)
+        .set({ ...updates, updatedAt: new Date() })
+        .where(and(eq(documents.id, docId), eq(documents.tenantId, tenantId)))
+        .returning();
+    return updatedDoc;
+};
+
+export const approveDocument = async (tenantId: string, docId: string) => {
+    const [approvedDoc] = await db.update(documents)
+        .set({ status: 'approved', updatedAt: new Date() })
+        .where(and(eq(documents.id, docId), eq(documents.tenantId, tenantId)))
+        .returning();
+    return approvedDoc;
+};
+
+export const deleteDocument = async (tenantId: string, docId: string) => {
+    // First get the document to know its storage key
+    const [doc] = await db.select().from(documents).where(and(eq(documents.id, docId), eq(documents.tenantId, tenantId)));
+    if (!doc) {
+        throw { status: 404, message: 'Document not found' };
+    }
+
+    // Delete from MinIO
+    await minioClient.removeObject(KAI_BUCKET, doc.storageKey);
+
+    // Delete from DB
+    await db.delete(documents).where(eq(documents.id, docId));
+    return { success: true };
+};

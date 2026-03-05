@@ -33,7 +33,7 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.list = exports.upload = void 0;
+exports.remove = exports.approve = exports.update = exports.list = exports.upload = void 0;
 const documentsService = __importStar(require("./documents.service"));
 const upload = async (req, res, next) => {
     try {
@@ -66,3 +66,37 @@ const list = async (req, res, next) => {
     }
 };
 exports.list = list;
+const update = async (req, res, next) => {
+    try {
+        const user = req.user;
+        const { code, name, type, ownerId } = req.body;
+        const doc = await documentsService.updateDocument(user.tenantId, req.params.id, { code, name, type, ownerId });
+        res.json(doc);
+    }
+    catch (error) {
+        next(error);
+    }
+};
+exports.update = update;
+const approve = async (req, res, next) => {
+    try {
+        const user = req.user;
+        const doc = await documentsService.approveDocument(user.tenantId, req.params.id);
+        res.json(doc);
+    }
+    catch (error) {
+        next(error);
+    }
+};
+exports.approve = approve;
+const remove = async (req, res, next) => {
+    try {
+        const user = req.user;
+        await documentsService.deleteDocument(user.tenantId, req.params.id);
+        res.sendStatus(204);
+    }
+    catch (error) {
+        next(error);
+    }
+};
+exports.remove = remove;
