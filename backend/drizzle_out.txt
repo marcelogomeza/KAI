@@ -1,0 +1,8 @@
+
+> kai-backend@1.0.0 db:push
+> drizzle-kit push
+
+No config path provided, using default 'drizzle.config.ts'
+Reading config file 'C:\Users\marce\OneDrive\Documentos\GitHub\KAI-HG\backend\drizzle.config.ts'
+This version of drizzle-kit requires newer version of drizzle-orm
+Please update drizzle-orm package to the latest version 👍
