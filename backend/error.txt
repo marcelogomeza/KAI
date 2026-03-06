@@ -1,0 +1,3 @@
+src/modules/documents/documents.service.ts(35,31): error TS2820: Type '"procesos"' is not assignable to type '"process" | "procedure" | "guide"'. Did you mean '"process"'?
+src/modules/documents/documents.service.ts(36,33): error TS2322: Type '"procedimientos"' is not assignable to type '"process" | "procedure" | "guide"'.
+src/modules/documents/documents.service.ts(37,29): error TS2322: Type '"guias"' is not assignable to type '"process" | "procedure" | "guide"'.

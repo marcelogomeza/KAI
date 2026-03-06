@@ -3,7 +3,7 @@ import api from '../api/axios';
 import { Save, CheckCircle2, AlertCircle, RefreshCw, XCircle } from 'lucide-react';
 import { clsx } from 'clsx';
 
-type Provider = 'google_cloud' | 'aws_s3' | 'onedrive';
+type Provider = 'local' | 'google_cloud' | 'aws_s3' | 'onedrive';
 
 export const SettingsPage: React.FC = () => {
     const [loading, setLoading] = useState(true);
@@ -143,6 +143,7 @@ export const SettingsPage: React.FC = () => {
                             onChange={handleChange}
                             className="w-full sm:w-1/2 px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-primary-500 bg-white shadow-sm"
                         >
+                            <option value="local">Local (Servidor App)</option>
                             <option value="google_cloud">Google Cloud Storage</option>
                             <option value="aws_s3">AWS S3</option>
                             <option value="onedrive">Microsoft OneDrive</option>
