@@ -67,7 +67,8 @@ export const loginUser = async (email: string, passwordPlain: string) => {
             id: user.id,
             email: user.email,
             role: user.role,
-            tenantId: user.tenantId
+            tenantId: user.tenantId,
+            orgRole: user.orgRole
         }
     };
 };

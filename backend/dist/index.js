@@ -47,7 +47,8 @@ const app = (0, express_1.default)();
 const PORT = process.env.PORT || 4000;
 // Middleware
 app.use((0, cors_1.default)());
-app.use(express_1.default.json());
+app.use(express_1.default.json({ limit: '50mb' }));
+app.use(express_1.default.urlencoded({ limit: '50mb', extended: true }));
 const documents_routes_1 = __importDefault(require("./modules/documents/documents.routes"));
 const users_routes_1 = __importDefault(require("./modules/users/users.routes"));
 const roles_routes_1 = __importDefault(require("./modules/roles/roles.routes"));
