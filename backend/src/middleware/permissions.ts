@@ -22,9 +22,8 @@ export const requireDocPermission = (action: 'create' | 'update' | 'delete' | 'a
                 return res.status(403).json({ error: 'Forbidden: No organization role assigned' });
             }
 
-            // Fetch permissions for the user's orgRole
-            // We assume orgRole holds the id of organizationRoles
-            const [orgRoleRecord] = await db.select().from(organizationRoles).where(eq(organizationRoles.id, currentUser.orgRole));
+            // Fetch permissions for the user's orgRole by name since it's saved as a string in UsersPage
+            const [orgRoleRecord] = await db.select().from(organizationRoles).where(eq(organizationRoles.name, currentUser.orgRole));
 
             if (!orgRoleRecord || !orgRoleRecord.permissions) {
                 return res.status(403).json({ error: 'Forbidden: Invalid organization role or no permissions set' });

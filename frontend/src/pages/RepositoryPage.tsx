@@ -6,14 +6,45 @@ import { UploadModal } from '../components/UploadModal';
 import { FileText, Search, Filter, Plus } from 'lucide-react';
 
 export const RepositoryPage: React.FC = () => {
-    const { hasRole } = useAuth();
+    const { hasRole, user } = useAuth();
     const [documents, setDocuments] = useState<Document[]>([]);
     const [loading, setLoading] = useState(true);
     const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
     const [statusFilter, setStatusFilter] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
+    const [orgRoleRecord, setOrgRoleRecord] = useState<any>(null);
 
-    const canUpload = hasRole(['admin', 'revisor']);
+    useEffect(() => {
+        const fetchRolePermissions = async () => {
+            if (!user?.orgRole) return;
+            try {
+                const response = await api.get('/roles/organization');
+                const roles = response.data;
+                const match = roles.find((r: any) => r.name === user.orgRole);
+                if (match) {
+                    setOrgRoleRecord(match);
+                }
+            } catch (err) {
+                console.error('Failed to fetch org role permissions', err);
+            }
+        };
+        fetchRolePermissions();
+    }, [user?.orgRole]);
+
+    const checkDocPermission = (docType: string, action: 'create' | 'update' | 'delete' | 'approve') => {
+        if (hasRole(['admin'])) return true; // System admins can always do anything
+        if (!orgRoleRecord || !orgRoleRecord.permissions) return false;
+        // The backend schema types might be in uppercase or different casing, generally they are lowercase
+        const normalizedType = docType.toLowerCase();
+        const typePerms = orgRoleRecord.permissions[normalizedType] || {};
+        return typePerms[action] === true;
+    };
+
+    const canUpload = hasRole(['admin', 'revisor']) || (orgRoleRecord && (
+        checkDocPermission('process', 'create') ||
+        checkDocPermission('procedure', 'create') ||
+        checkDocPermission('guide', 'create')
+    ));
 
     const fetchDocuments = async () => {
         setLoading(true);
@@ -175,24 +206,27 @@ export const RepositoryPage: React.FC = () => {
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
                                             <button className="text-primary-600 hover:text-primary-900">Consult</button>
-                                            {canUpload && (
-                                                <>
-                                                    <button className="text-gray-600 hover:text-gray-900">Update</button>
-                                                    {doc.status !== 'approved' && (
-                                                        <button
-                                                            onClick={() => handleApprove(doc.id)}
-                                                            className="text-green-600 hover:text-green-900"
-                                                        >
-                                                            Approve
-                                                        </button>
-                                                    )}
-                                                    <button
-                                                        onClick={() => handleDelete(doc.id)}
-                                                        className="text-red-600 hover:text-red-900"
-                                                    >
-                                                        Delete
-                                                    </button>
-                                                </>
+
+                                            {checkDocPermission(doc.type || 'process', 'update') && (
+                                                <button className="text-gray-600 hover:text-gray-900">Update</button>
+                                            )}
+
+                                            {doc.status !== 'approved' && checkDocPermission(doc.type || 'process', 'approve') && (
+                                                <button
+                                                    onClick={() => handleApprove(doc.id)}
+                                                    className="text-green-600 hover:text-green-900"
+                                                >
+                                                    Approve
+                                                </button>
+                                            )}
+
+                                            {checkDocPermission(doc.type || 'process', 'delete') && (
+                                                <button
+                                                    onClick={() => handleDelete(doc.id)}
+                                                    className="text-red-600 hover:text-red-900"
+                                                >
+                                                    Delete
+                                                </button>
                                             )}
                                         </td>
                                     </tr>
