@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import multer from 'multer';
-import { upload, list, update, approve, remove } from './documents.controller';
+import { upload, list, update, approve, remove, getDownloadUrl } from './documents.controller';
 import { requireAuth, requireRole } from '../../middleware/auth';
 import { requireDocPermission } from '../../middleware/permissions';
 
@@ -38,6 +38,9 @@ router.post(
 
 // List: Accessible by anyone authenticated (we can filter in UI or controller)
 router.get('/', list);
+
+// Download: Accessible by anyone authenticated
+router.get('/:id/download', getDownloadUrl);
 
 // Update: Checks 'update' permission
 router.put('/:id', requireDocPermission('update'), update);

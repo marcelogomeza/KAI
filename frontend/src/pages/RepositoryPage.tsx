@@ -4,12 +4,15 @@ import api from '../api/axios';
 import { Document } from '../types';
 import { UploadModal } from '../components/UploadModal';
 import { FileText, Search, Filter, Plus } from 'lucide-react';
+import { UpdateModal } from '../components/UpdateModal';
 
 export const RepositoryPage: React.FC = () => {
     const { hasRole, user } = useAuth();
     const [documents, setDocuments] = useState<Document[]>([]);
     const [loading, setLoading] = useState(true);
     const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+    const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+    const [documentToUpdate, setDocumentToUpdate] = useState<Document | null>(null);
     const [statusFilter, setStatusFilter] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
     const [orgRoleRecord, setOrgRoleRecord] = useState<any>(null);
@@ -67,6 +70,17 @@ export const RepositoryPage: React.FC = () => {
     const filteredDocuments = documents.filter(doc =>
         doc.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
+
+    const handleConsult = async (id: string) => {
+        try {
+            const { data } = await api.get(`/documents/${id}/download`);
+            if (data.url) {
+                window.open(data.url, '_blank');
+            }
+        } catch (error: any) {
+            alert('Failed to get document URL for consultation');
+        }
+    };
 
     const handleApprove = async (id: string) => {
         try {
@@ -205,10 +219,23 @@ export const RepositoryPage: React.FC = () => {
                                             {new Date(doc.updatedAt).toLocaleDateString()}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
-                                            <button className="text-primary-600 hover:text-primary-900">Consult</button>
+                                            <button
+                                                onClick={() => handleConsult(doc.id)}
+                                                className="text-primary-600 hover:text-primary-900"
+                                            >
+                                                Consult
+                                            </button>
 
                                             {checkDocPermission(doc.type || 'process', 'update') && (
-                                                <button className="text-gray-600 hover:text-gray-900">Update</button>
+                                                <button
+                                                    onClick={() => {
+                                                        setDocumentToUpdate(doc);
+                                                        setIsUpdateModalOpen(true);
+                                                    }}
+                                                    className="text-gray-600 hover:text-gray-900"
+                                                >
+                                                    Update
+                                                </button>
                                             )}
 
                                             {doc.status !== 'approved' && checkDocPermission(doc.type || 'process', 'approve') && (
@@ -241,6 +268,13 @@ export const RepositoryPage: React.FC = () => {
                 isOpen={isUploadModalOpen}
                 onClose={() => setIsUploadModalOpen(false)}
                 onSuccess={() => fetchDocuments()}
+            />
+
+            <UpdateModal
+                isOpen={isUpdateModalOpen}
+                onClose={() => setIsUpdateModalOpen(false)}
+                onSuccess={() => fetchDocuments()}
+                document={documentToUpdate}
             />
         </div>
     );

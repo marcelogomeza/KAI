@@ -33,7 +33,7 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.remove = exports.approve = exports.update = exports.list = exports.upload = void 0;
+exports.remove = exports.approve = exports.update = exports.getDownloadUrl = exports.list = exports.upload = void 0;
 const documentsService = __importStar(require("./documents.service"));
 const upload = async (req, res, next) => {
     try {
@@ -66,6 +66,17 @@ const list = async (req, res, next) => {
     }
 };
 exports.list = list;
+const getDownloadUrl = async (req, res, next) => {
+    try {
+        const user = req.user;
+        const url = await documentsService.generateDownloadUrl(user.tenantId, req.params.id);
+        res.json({ url });
+    }
+    catch (error) {
+        next(error);
+    }
+};
+exports.getDownloadUrl = getDownloadUrl;
 const update = async (req, res, next) => {
     try {
         const user = req.user;

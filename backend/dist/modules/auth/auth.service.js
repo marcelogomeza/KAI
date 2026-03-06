@@ -60,7 +60,8 @@ const loginUser = async (email, passwordPlain) => {
             id: user.id,
             email: user.email,
             role: user.role,
-            tenantId: user.tenantId
+            tenantId: user.tenantId,
+            orgRole: user.orgRole
         }
     };
 };

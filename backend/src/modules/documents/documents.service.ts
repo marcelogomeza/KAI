@@ -63,6 +63,17 @@ export const listDocuments = async (tenantId: string, filterStatus?: string) => 
         .where(eq(documents.tenantId, tenantId));
 };
 
+export const generateDownloadUrl = async (tenantId: string, docId: string) => {
+    const [doc] = await db.select().from(documents).where(and(eq(documents.id, docId), eq(documents.tenantId, tenantId)));
+    if (!doc) {
+        throw { status: 404, message: 'Document not found' };
+    }
+
+    // Set expiry to 1 hour
+    const url = await minioClient.presignedGetObject(KAI_BUCKET, doc.storageKey, 3600);
+    return url;
+};
+
 export const updateDocument = async (tenantId: string, docId: string, updates: Partial<{ code: string, name: string, type: 'process' | 'procedure' | 'guide', ownerId: string }>) => {
     const [updatedDoc] = await db.update(documents)
         .set({ ...updates, updatedAt: new Date() })

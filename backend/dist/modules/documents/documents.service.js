@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteDocument = exports.approveDocument = exports.updateDocument = exports.listDocuments = exports.uploadDocument = void 0;
+exports.deleteDocument = exports.approveDocument = exports.updateDocument = exports.generateDownloadUrl = exports.listDocuments = exports.uploadDocument = void 0;
 const db_1 = require("../../db/db");
 const schema_1 = require("../../db/schema");
 const minio_1 = require("../../storage/minio");
@@ -41,6 +41,16 @@ const listDocuments = async (tenantId, filterStatus) => {
         .where((0, drizzle_orm_1.eq)(schema_1.documents.tenantId, tenantId));
 };
 exports.listDocuments = listDocuments;
+const generateDownloadUrl = async (tenantId, docId) => {
+    const [doc] = await db_1.db.select().from(schema_1.documents).where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(schema_1.documents.id, docId), (0, drizzle_orm_1.eq)(schema_1.documents.tenantId, tenantId)));
+    if (!doc) {
+        throw { status: 404, message: 'Document not found' };
+    }
+    // Set expiry to 1 hour
+    const url = await minio_1.minioClient.presignedGetObject(minio_1.KAI_BUCKET, doc.storageKey, 3600);
+    return url;
+};
+exports.generateDownloadUrl = generateDownloadUrl;
 const updateDocument = async (tenantId, docId, updates) => {
     const [updatedDoc] = await db_1.db.update(schema_1.documents)
         .set({ ...updates, updatedAt: new Date() })

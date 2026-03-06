@@ -34,6 +34,8 @@ router.use(auth_1.requireAuth);
 router.post('/', (0, permissions_1.requireDocPermission)('create'), uploadMiddleware.single('file'), documents_controller_1.upload);
 // List: Accessible by anyone authenticated (we can filter in UI or controller)
 router.get('/', documents_controller_1.list);
+// Download: Accessible by anyone authenticated
+router.get('/:id/download', documents_controller_1.getDownloadUrl);
 // Update: Checks 'update' permission
 router.put('/:id', (0, permissions_1.requireDocPermission)('update'), documents_controller_1.update);
 // Approve: Checks 'approve' permission

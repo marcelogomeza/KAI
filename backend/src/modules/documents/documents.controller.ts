@@ -44,6 +44,16 @@ export const list = async (req: AuthRequest, res: Response, next: NextFunction) 
     }
 };
 
+export const getDownloadUrl = async (req: AuthRequest, res: Response, next: NextFunction) => {
+    try {
+        const user = req.user!;
+        const url = await documentsService.generateDownloadUrl(user.tenantId, req.params.id);
+        res.json({ url });
+    } catch (error) {
+        next(error);
+    }
+};
+
 export const update = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
         const user = req.user!;
