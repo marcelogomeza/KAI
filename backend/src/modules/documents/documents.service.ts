@@ -20,7 +20,13 @@ export const uploadDocument = async (
     meta: {
         code?: string,
         name: string,
-        type: 'process' | 'procedure' | 'guide',
+        type: string,
+        referenceDescription?: string,
+        area?: string,
+        linkedProcess?: string,
+        confidentiality?: string,
+        expirationDate?: string,
+        approver?: string,
         status?: 'draft' | 'approved' | 'obsolete',
         ownerId?: string,
     }
@@ -30,11 +36,15 @@ export const uploadDocument = async (
 
     const fileExtension = file.originalname.split('.').pop() || 'pdf';
 
-    // Map type to plural folder names as requested (procesos, procedimientos, guias)
+    // Map type to plural folder names as requested
     let folder: string = meta.type || 'procesos';
-    if (folder === 'process') folder = 'procesos';
-    if (folder === 'procedure') folder = 'procedimientos';
-    if (folder === 'guide') folder = 'guias';
+    if (folder === 'Mapa de procesos') folder = 'procesos';
+    else if (folder === 'Políticas') folder = 'politicas';
+    else if (folder === 'Manuales') folder = 'manuales';
+    else if (folder === 'Procedimientos') folder = 'procedimientos';
+    else if (folder === 'Guías e Instructivos') folder = 'guias';
+    else if (folder === 'Formatos y Registros') folder = 'formatos';
+    else if (folder.includes('KPI')) folder = 'kpis';
 
     let storageKey = '';
 
@@ -69,11 +79,19 @@ export const uploadDocument = async (
     }
 
     // Save to DB
+    const expirationDateObj = meta.expirationDate ? new Date(meta.expirationDate) : null;
+
     const [newDoc] = await db.insert(documents).values({
         tenantId,
         code: meta.code,
         name: meta.name || file.originalname,
-        type: meta.type || 'process',
+        referenceDescription: meta.referenceDescription,
+        area: meta.area,
+        linkedProcess: meta.linkedProcess,
+        confidentiality: meta.confidentiality,
+        expirationDate: expirationDateObj,
+        approver: meta.approver,
+        type: meta.type as any || 'Mapa de procesos',
         originalFilename: file.originalname,
         mimeType: file.mimetype,
         sizeBytes: file.size,
@@ -133,9 +151,9 @@ export const generateDownloadUrl = async (tenantId: string, docId: string) => {
     return url;
 };
 
-export const updateDocument = async (tenantId: string, docId: string, updates: Partial<{ code: string, name: string, type: 'process' | 'procedure' | 'guide', ownerId: string }>) => {
+export const updateDocument = async (tenantId: string, docId: string, updates: Partial<{ code: string, name: string, type: string, referenceDescription: string, area: string, linkedProcess: string, confidentiality: string, expirationDate: Date, approver: string, ownerId: string }>) => {
     const [updatedDoc] = await db.update(documents)
-        .set({ ...updates, updatedAt: new Date() })
+        .set({ ...updates, type: updates.type as any, updatedAt: new Date() })
         .where(and(eq(documents.id, docId), eq(documents.tenantId, tenantId)))
         .returning();
     return updatedDoc;

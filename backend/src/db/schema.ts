@@ -2,7 +2,7 @@ import { pgTable, uuid, varchar, timestamp, text, integer, pgEnum, jsonb } from 
 
 export const roleEnum = pgEnum('role', ['admin', 'hr', 'auditor', 'user', 'revisor']);
 export const statusEnum = pgEnum('status', ['draft', 'approved', 'obsolete']);
-export const documentTypeEnum = pgEnum('document_type', ['process', 'procedure', 'guide']);
+export const documentTypeEnum = pgEnum('document_type', ['Mapa de procesos', 'Políticas', 'Manuales', 'Procedimientos', 'Guías e Instructivos', 'Formatos y Registros', "Indicadores y Tableros (KPI's)"]);
 
 export const tenants = pgTable('tenants', {
     id: uuid('id').defaultRandom().primaryKey(),
@@ -29,7 +29,13 @@ export const documents = pgTable('documents', {
     tenantId: uuid('tenant_id').references(() => tenants.id).notNull(),
     code: varchar('code', { length: 50 }),
     name: varchar('name', { length: 255 }).notNull(),
-    type: documentTypeEnum('type').notNull().default('process'),
+    referenceDescription: text('reference_description'),
+    area: varchar('area', { length: 255 }),
+    linkedProcess: varchar('linked_process', { length: 255 }),
+    confidentiality: varchar('confidentiality', { length: 50 }),
+    expirationDate: timestamp('expiration_date'),
+    approver: varchar('approver', { length: 255 }),
+    type: documentTypeEnum('type').notNull().default('Mapa de procesos'),
     originalFilename: text('original_filename').notNull(),
     mimeType: varchar('mime_type', { length: 100 }).notNull(),
     sizeBytes: integer('size_bytes').notNull(),

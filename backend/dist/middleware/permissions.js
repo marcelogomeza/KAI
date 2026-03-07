@@ -26,10 +26,10 @@ const requireDocPermission = (action) => {
             }
             const permissions = orgRoleRecord.permissions;
             // Determine document type
-            let docType = 'process';
+            let docType = 'Mapa de procesos';
             if (req.method === 'POST') {
                 // When uploading, type should be in req.body
-                docType = req.body.type || 'process';
+                docType = req.body.type || 'Mapa de procesos';
             }
             else if (req.params.id) {
                 // For PUT, DELETE, PATCH, we should fetch the document's type first

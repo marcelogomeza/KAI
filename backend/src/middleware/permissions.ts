@@ -32,18 +32,18 @@ export const requireDocPermission = (action: 'create' | 'update' | 'delete' | 'a
             const permissions = orgRoleRecord.permissions as any;
 
             // Determine document type
-            let docType: 'process' | 'procedure' | 'guide' = 'process';
+            let docType: string = 'Mapa de procesos';
 
             if (req.method === 'POST') {
                 // When uploading, type should be in req.body
-                docType = (req.body.type as 'process' | 'procedure' | 'guide') || 'process';
+                docType = (req.body.type as string) || 'Mapa de procesos';
             } else if (req.params.id) {
                 // For PUT, DELETE, PATCH, we should fetch the document's type first
                 const [targetDoc] = await db.select({ type: documents.type }).from(documents).where(eq(documents.id, req.params.id));
                 if (!targetDoc) {
                     return res.status(404).json({ error: 'Document not found' });
                 }
-                docType = targetDoc.type;
+                docType = targetDoc.type as string;
             }
 
             // Check the action

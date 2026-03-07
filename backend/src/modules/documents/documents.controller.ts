@@ -10,16 +10,22 @@ export const upload = async (req: AuthRequest, res: Response, next: NextFunction
 
         const user = req.user!;
         const status = (req.body.status as 'draft' | 'approved' | 'obsolete') || 'draft';
-        const type = (req.body.type as 'process' | 'procedure' | 'guide') || 'process';
+        const type = req.body.type as string || 'Mapa de procesos';
         const code = req.body.code as string;
         const name = req.body.name as string;
+        const referenceDescription = req.body.referenceDescription as string;
+        const area = req.body.area as string;
+        const linkedProcess = req.body.linkedProcess as string;
+        const confidentiality = req.body.confidentiality as string;
+        const expirationDate = req.body.expirationDate as string;
+        const approver = req.body.approver as string;
         const ownerId = req.body.ownerId as string || user.userId;
 
         const document = await documentsService.uploadDocument(
             user.tenantId,
             user.userId,
             req.file,
-            { code, name, type, status, ownerId }
+            { code, name, type, referenceDescription, area, linkedProcess, confidentiality, expirationDate, approver, status, ownerId }
         );
 
         res.status(201).json(document);
@@ -57,8 +63,19 @@ export const getDownloadUrl = async (req: AuthRequest, res: Response, next: Next
 export const update = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
         const user = req.user!;
-        const { code, name, type, ownerId } = req.body;
-        const doc = await documentsService.updateDocument(user.tenantId, req.params.id, { code, name, type, ownerId });
+        const { code, name, type, referenceDescription, area, linkedProcess, confidentiality, expirationDate, approver, ownerId } = req.body;
+
+        let validExpirationDate: Date | undefined = undefined;
+        if (expirationDate) {
+            const parsedDate = new Date(expirationDate);
+            if (!isNaN(parsedDate.getTime())) {
+                validExpirationDate = parsedDate;
+            }
+        }
+
+        const doc = await documentsService.updateDocument(user.tenantId, req.params.id, {
+            code, name, type, referenceDescription, area, linkedProcess, confidentiality, expirationDate: validExpirationDate, approver, ownerId
+        });
         res.json(doc);
     } catch (error) {
         next(error);

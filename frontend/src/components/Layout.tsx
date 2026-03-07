@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { LogOut, BookOpen, Settings, User as UserIcon } from 'lucide-react';
+import { LogOut, BookOpen, Settings, User as UserIcon, Layers } from 'lucide-react';
 import { clsx } from 'clsx';
 
 export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -16,6 +16,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
 
     const navItems = [
         { name: 'Repository', path: '/', icon: BookOpen },
+        { name: 'Jerarquía Documental', path: '/hierarchy', icon: Layers },
         {
             name: 'Users', path: '/users', icon: UserIcon, roles: ['admin'], children: [
                 { name: 'All Users', path: '/users' },

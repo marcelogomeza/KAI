@@ -7,6 +7,7 @@ import { UsersPage } from './pages/UsersPage';
 import { RolesPage } from './pages/RolesPage';
 import { OrgStructurePage } from './pages/OrgStructurePage';
 import { SettingsPage } from './pages/SettingsPage';
+import { HierarchyPage } from './pages/HierarchyPage';
 import { Layout } from './components/Layout';
 
 function App() {
@@ -20,6 +21,7 @@ function App() {
                     {/* Protected Routes */}
                     <Route element={<ProtectedRoute />}>
                         <Route path="/" element={<Layout><RepositoryPage /></Layout>} />
+                        <Route path="/hierarchy" element={<Layout><HierarchyPage /></Layout>} />
                         <Route path="/users" element={<Layout><UsersPage /></Layout>} />
                         <Route path="/users/system-roles" element={<Layout><RolesPage type="system" /></Layout>} />
                         <Route path="/users/organization-roles" element={<Layout><RolesPage type="organization" /></Layout>} />

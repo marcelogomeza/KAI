@@ -18,14 +18,22 @@ const uploadDocument = async (tenantId, userId, file, meta) => {
     const tenantSettings = await getTenantSettings(tenantId);
     const provider = tenantSettings['storage_provider'] || 'local';
     const fileExtension = file.originalname.split('.').pop() || 'pdf';
-    // Map type to plural folder names as requested (procesos, procedimientos, guias)
+    // Map type to plural folder names as requested
     let folder = meta.type || 'procesos';
-    if (folder === 'process')
+    if (folder === 'Mapa de procesos')
         folder = 'procesos';
-    if (folder === 'procedure')
+    else if (folder === 'Políticas')
+        folder = 'politicas';
+    else if (folder === 'Manuales')
+        folder = 'manuales';
+    else if (folder === 'Procedimientos')
         folder = 'procedimientos';
-    if (folder === 'guide')
+    else if (folder === 'Guías e Instructivos')
         folder = 'guias';
+    else if (folder === 'Formatos y Registros')
+        folder = 'formatos';
+    else if (folder.includes('KPI'))
+        folder = 'kpis';
     let storageKey = '';
     if (provider === 'google_cloud') {
         const { gcp_project_id, gcp_client_email, gcp_private_key, gcp_bucket_name } = tenantSettings;
@@ -49,11 +57,18 @@ const uploadDocument = async (tenantId, userId, file, meta) => {
         await minio_1.minioClient.putObject(minio_1.KAI_BUCKET, storageKey, file.buffer, file.size, { 'Content-Type': file.mimetype });
     }
     // Save to DB
+    const expirationDateObj = meta.expirationDate ? new Date(meta.expirationDate) : null;
     const [newDoc] = await db_1.db.insert(schema_1.documents).values({
         tenantId,
         code: meta.code,
         name: meta.name || file.originalname,
-        type: meta.type || 'process',
+        referenceDescription: meta.referenceDescription,
+        area: meta.area,
+        linkedProcess: meta.linkedProcess,
+        confidentiality: meta.confidentiality,
+        expirationDate: expirationDateObj,
+        approver: meta.approver,
+        type: meta.type || 'Mapa de procesos',
         originalFilename: file.originalname,
         mimeType: file.mimetype,
         sizeBytes: file.size,
@@ -106,7 +121,7 @@ const generateDownloadUrl = async (tenantId, docId) => {
 exports.generateDownloadUrl = generateDownloadUrl;
 const updateDocument = async (tenantId, docId, updates) => {
     const [updatedDoc] = await db_1.db.update(schema_1.documents)
-        .set({ ...updates, updatedAt: new Date() })
+        .set({ ...updates, type: updates.type, updatedAt: new Date() })
         .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(schema_1.documents.id, docId), (0, drizzle_orm_1.eq)(schema_1.documents.tenantId, tenantId)))
         .returning();
     return updatedDoc;

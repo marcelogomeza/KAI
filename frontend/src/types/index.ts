@@ -19,6 +19,12 @@ export interface Document {
     type?: string;
     tenantId: string;
     name: string;
+    referenceDescription?: string;
+    area?: string;
+    linkedProcess?: string;
+    confidentiality?: string;
+    expirationDate?: string;
+    approver?: string;
     originalFilename: string;
     mimeType: string;
     sizeBytes: number;

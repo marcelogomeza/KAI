@@ -4,7 +4,7 @@ exports.settings = exports.jobs = exports.orgUnits = exports.organizationRoles =
 const pg_core_1 = require("drizzle-orm/pg-core");
 exports.roleEnum = (0, pg_core_1.pgEnum)('role', ['admin', 'hr', 'auditor', 'user', 'revisor']);
 exports.statusEnum = (0, pg_core_1.pgEnum)('status', ['draft', 'approved', 'obsolete']);
-exports.documentTypeEnum = (0, pg_core_1.pgEnum)('document_type', ['process', 'procedure', 'guide']);
+exports.documentTypeEnum = (0, pg_core_1.pgEnum)('document_type', ['Mapa de procesos', 'Políticas', 'Manuales', 'Procedimientos', 'Guías e Instructivos', 'Formatos y Registros', "Indicadores y Tableros (KPI's)"]);
 exports.tenants = (0, pg_core_1.pgTable)('tenants', {
     id: (0, pg_core_1.uuid)('id').defaultRandom().primaryKey(),
     name: (0, pg_core_1.varchar)('name', { length: 255 }).notNull(),
@@ -28,7 +28,13 @@ exports.documents = (0, pg_core_1.pgTable)('documents', {
     tenantId: (0, pg_core_1.uuid)('tenant_id').references(() => exports.tenants.id).notNull(),
     code: (0, pg_core_1.varchar)('code', { length: 50 }),
     name: (0, pg_core_1.varchar)('name', { length: 255 }).notNull(),
-    type: (0, exports.documentTypeEnum)('type').notNull().default('process'),
+    referenceDescription: (0, pg_core_1.text)('reference_description'),
+    area: (0, pg_core_1.varchar)('area', { length: 255 }),
+    linkedProcess: (0, pg_core_1.varchar)('linked_process', { length: 255 }),
+    confidentiality: (0, pg_core_1.varchar)('confidentiality', { length: 50 }),
+    expirationDate: (0, pg_core_1.timestamp)('expiration_date'),
+    approver: (0, pg_core_1.varchar)('approver', { length: 255 }),
+    type: (0, exports.documentTypeEnum)('type').notNull().default('Mapa de procesos'),
     originalFilename: (0, pg_core_1.text)('original_filename').notNull(),
     mimeType: (0, pg_core_1.varchar)('mime_type', { length: 100 }).notNull(),
     sizeBytes: (0, pg_core_1.integer)('size_bytes').notNull(),

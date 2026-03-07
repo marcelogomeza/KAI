@@ -42,11 +42,17 @@ const upload = async (req, res, next) => {
         }
         const user = req.user;
         const status = req.body.status || 'draft';
-        const type = req.body.type || 'process';
+        const type = req.body.type || 'Mapa de procesos';
         const code = req.body.code;
         const name = req.body.name;
+        const referenceDescription = req.body.referenceDescription;
+        const area = req.body.area;
+        const linkedProcess = req.body.linkedProcess;
+        const confidentiality = req.body.confidentiality;
+        const expirationDate = req.body.expirationDate;
+        const approver = req.body.approver;
         const ownerId = req.body.ownerId || user.userId;
-        const document = await documentsService.uploadDocument(user.tenantId, user.userId, req.file, { code, name, type, status, ownerId });
+        const document = await documentsService.uploadDocument(user.tenantId, user.userId, req.file, { code, name, type, referenceDescription, area, linkedProcess, confidentiality, expirationDate, approver, status, ownerId });
         res.status(201).json(document);
     }
     catch (error) {
@@ -80,8 +86,17 @@ exports.getDownloadUrl = getDownloadUrl;
 const update = async (req, res, next) => {
     try {
         const user = req.user;
-        const { code, name, type, ownerId } = req.body;
-        const doc = await documentsService.updateDocument(user.tenantId, req.params.id, { code, name, type, ownerId });
+        const { code, name, type, referenceDescription, area, linkedProcess, confidentiality, expirationDate, approver, ownerId } = req.body;
+        let validExpirationDate = undefined;
+        if (expirationDate) {
+            const parsedDate = new Date(expirationDate);
+            if (!isNaN(parsedDate.getTime())) {
+                validExpirationDate = parsedDate;
+            }
+        }
+        const doc = await documentsService.updateDocument(user.tenantId, req.params.id, {
+            code, name, type, referenceDescription, area, linkedProcess, confidentiality, expirationDate: validExpirationDate, approver, ownerId
+        });
         res.json(doc);
     }
     catch (error) {
