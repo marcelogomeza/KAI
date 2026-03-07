@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../api/axios';
 import { Document } from '../types';
 
 export const HierarchyPage: React.FC = () => {
@@ -11,11 +11,8 @@ export const HierarchyPage: React.FC = () => {
 
     const fetchDocuments = async () => {
         try {
-            const token = localStorage.getItem('token');
-            const response = await axios.get('http://localhost:3000/api/documents', {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-            setDocuments(response.data);
+            const { data } = await api.get('/documents');
+            setDocuments(data);
         } catch (error) {
             console.error('Error fetching documents', error);
         }
